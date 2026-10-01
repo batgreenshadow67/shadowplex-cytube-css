@@ -266,11 +266,7 @@ table {
 }
 
 /* MOTD header glow */
-#motdwrap h1,
-#motdwrap h2,
-#motdwrap h3,
-#motdwrap h4,
-#motdwrap h5,
-#motdwrap h6 {
+#motdwrap h1
+{
   text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10, 0 0 14px #39ff1099 !important;
 }
