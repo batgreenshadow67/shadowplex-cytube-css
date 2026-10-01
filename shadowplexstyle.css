@@ -251,3 +251,26 @@ table {
   text-shadow: 0 0 5px currentColor !important;
   text-shadow: 0 0 5px color-mix(in srgb, currentColor 50%, transparent) !important;
 }
+
+/* Links in chat and MOTD: bright green with a glow */
+#messagebuffer a,
+#messagebuffer a:visited,
+#motdwrap a,
+#motdwrap a:visited {
+  color: #39ff10 !important;
+  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff1099 !important;
+}
+#messagebuffer a:hover,
+#motdwrap a:hover {
+  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10, 0 0 14px #39ff10 !important;
+}
+
+/* MOTD header glow */
+#motdwrap h1,
+#motdwrap h2,
+#motdwrap h3,
+#motdwrap h4,
+#motdwrap h5,
+#motdwrap h6 {
+  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10, 0 0 14px #39ff1099 !important;
+}
