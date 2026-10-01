@@ -245,3 +245,11 @@ table {
   text-shadow: 0 0 5px currentColor !important;
   text-shadow: 0 0 5px color-mix(in srgb, currentColor 50%, transparent) !important;
 }
+
+/* Moderate blur behind chat and footer */
+#messagebuffer,
+#chat-footer {
+  background-color: transparent !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+}
