@@ -229,13 +229,20 @@ table {
   background-repeat: no-repeat !important;
 }
 
-/* Chat message area background image */
+/* Chat message area background image: clearer and more transparent */
 #messagebuffer {
-  background-color: #000f08 !important;
+  background-color: transparent !important;
   background-image:
-    linear-gradient(#000f08b3, #000f08d9),
+    linear-gradient(#000f0833, #000f0866),
     url("https://cdn.imgchest.com/files/0a6d6bde6ffa.png") !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
+  backdrop-filter: none !important;
+}
+
+/* Every name glows in its own color */
+.username {
+  text-shadow: 0 0 5px currentColor !important;
+  text-shadow: 0 0 5px color-mix(in srgb, currentColor 50%, transparent) !important;
 }
