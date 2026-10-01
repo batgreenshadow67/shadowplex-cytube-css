@@ -206,7 +206,7 @@ table {
 .navbar-inverse .navbar-nav > .active > a:focus {
   background-color: transparent !important;
   background-image: none !important;
-  text-shadow: 0 0 3px #39ff10, 0 0 7px #39ff10, 0 0 12px #39ff10, 0 0 20px #39ff10aa !important;
+  text-shadow: 0 0 3px #39ff10, 0 0 7px #39ff1099 !important;
 }
 
 /* Semi-transparent menus (emote menu, GIF search, script settings, etc.) */
@@ -267,5 +267,5 @@ table {
 
 /* MOTD: only "The Green's Shadowplex" glows */
 #motdwrap h1 span {
-  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10, 0 0 14px #39ff10aa, 0 0 22px #39ff1066 !important;
+  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
 }
