@@ -361,3 +361,22 @@ footer a:hover {
   color: #b4ffa6 !important;
   color: color-mix(in srgb, #39ff10 35%, white) !important;
 }
+
+
+/* Text on buttons: slight bright green tint, same as the icons */
+.btn,
+.btn-default,
+.btn-primary,
+.btn-chat,
+.btn-chat:hover,
+.btn-chat:focus {
+  color: #b4ffa6 !important;
+  color: color-mix(in srgb, #39ff10 35%, white) !important;
+}
+
+/* AFK button: softer glow while it's on */
+#afktoggle.afkactive,
+#afktoggle.afkactive:hover,
+#afktoggle.afkactive:focus {
+  text-shadow: 0 0 3px #2ecc7166 !important;
+}
