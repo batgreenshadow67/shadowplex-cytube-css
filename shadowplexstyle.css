@@ -289,14 +289,14 @@ table {
   text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
 }
 
-/* Page footer: green scheme instead of the red plugin bar */
+/* Page footer: kinotube bar with a brighter green background */
 #pluginfooter {
-  background: #04150ccc !important;
-  border-top: 1px solid #0f3a1c;
-  color: #6ca383;
+  background: #0f7a3acc !important;
+  border-top: 1px solid #39ff1066;
+  color: #d6ffe6;
 }
 #pluginfooter span {
-  color: #3ddc84 !important;
+  color: #ffffff !important;
 }
 
 #footer,
