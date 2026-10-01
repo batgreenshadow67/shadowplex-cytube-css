@@ -228,3 +228,14 @@ table {
   background-position: center !important;
   background-repeat: no-repeat !important;
 }
+
+/* Chat message area background image */
+#messagebuffer {
+  background-color: #000f08 !important;
+  background-image:
+    linear-gradient(#000f08b3, #000f08d9),
+    url("https://cdn.imgchest.com/files/0a6d6bde6ffa.png") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
