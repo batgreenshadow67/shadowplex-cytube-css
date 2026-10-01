@@ -265,8 +265,7 @@ table {
   text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10, 0 0 14px #39ff10 !important;
 }
 
-/* MOTD header glow */
-#motdwrap h1
-{
-  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10, 0 0 14px #39ff1099 !important;
+/* MOTD: only "The Green's Shadowplex" glows */
+#motdwrap h1 span {
+  text-shadow: 0 0 3px #39ff10aa, 0 0 6px #39ff1055 !important;
 }
