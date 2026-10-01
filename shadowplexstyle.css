@@ -269,3 +269,16 @@ table {
 #motdwrap h1 span {
   text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
 }
+/* Chat header bar (title, icons, user count) green glow */
+#chatheader,
+#chatheader i,
+#currenttitle,
+#usercount {
+  text-shadow: 0 0 3px #39ff10aa, 0 0 8px #39ff1066 !important;
+}
+
+/* Userlist names glow in their own color */
+#userlist .userlist_item > span:nth-child(2) {
+  text-shadow: 0 0 6px currentColor !important;
+  text-shadow: 0 0 6px color-mix(in srgb, currentColor 80%, transparent), 0 0 12px color-mix(in srgb, currentColor 40%, transparent) !important;
+}
