@@ -289,14 +289,14 @@ table {
   text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
 }
 
-/* Page footer: kinotube bar with a brighter green background */
+/* Page footer: green scheme instead of the red plugin bar */
 #pluginfooter {
-  background: #0f7a3acc !important;
-  border-top: 1px solid #39ff1066;
-  color: #d6ffe6;
+  background: #0b5c2e !important;
+  border-top: 1px solid #0f3a1c;
+  color: #6ca383;
 }
 #pluginfooter span {
-  color: #ffffff !important;
+  color: #3ddc84 !important;
 }
 
 #footer,
@@ -306,7 +306,7 @@ footer {
 #footer .credit,
 #footer .text-muted,
 footer .text-muted {
-  color: #0b5428 !important;
+  color: #6ca383 !important;
 }
 #footer a,
 footer a {
