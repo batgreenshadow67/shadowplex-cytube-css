@@ -380,3 +380,32 @@ footer a:hover {
 #afktoggle.afkactive:focus {
   text-shadow: 0 0 3px #2ecc7166 !important;
 }
+/* Changelog icon: behave like the other navbar items */
+.navbar [id*="changelog" i],
+.navbar [class*="changelog" i],
+.navbar [id*="changelog" i] i,
+.navbar [class*="changelog" i] i,
+.navbar [id*="changelog" i] .glyphicon,
+.navbar [class*="changelog" i] .glyphicon,
+.navbar [id*="changelog" i] .fa,
+.navbar [class*="changelog" i] .fa {
+  color: var(--link) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transition: color .2s ease, text-shadow .2s ease;
+}
+
+.navbar [id*="changelog" i]:hover,
+.navbar [class*="changelog" i]:hover,
+.navbar [id*="changelog" i]:focus,
+.navbar [class*="changelog" i]:focus,
+.navbar [id*="changelog" i]:hover i,
+.navbar [class*="changelog" i]:hover i,
+.navbar [id*="changelog" i]:hover .glyphicon,
+.navbar [class*="changelog" i]:hover .glyphicon,
+.navbar [id*="changelog" i]:hover .fa,
+.navbar [class*="changelog" i]:hover .fa {
+  color: var(--neon) !important;
+  text-shadow: 0 0 3px var(--neon), 0 0 7px #39ff1099 !important;
+}
