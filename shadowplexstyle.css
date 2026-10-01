@@ -178,3 +178,22 @@ input[type=checkbox] {
 table {
   background-color: #000e07cc !important; /* cc = ~80% opacity, adjust as needed */
 }
+
+
+/* Green glow on button text when hovering */
+.btn,
+.btn-default,
+.btn-primary,
+.btn-chat,
+.navbar-nav > li > a {
+  transition: text-shadow .2s ease, color .2s ease;
+}
+
+.btn:hover,
+.btn-default:hover,
+.btn-primary:hover,
+.btn-chat:hover,
+.btn:focus,
+.btn-chat:focus {
+  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10aa, 0 0 12px #39ff1066 !important;
+}
