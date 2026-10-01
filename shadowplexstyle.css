@@ -250,6 +250,6 @@ table {
 #messagebuffer,
 #chat-footer {
   background-color: transparent !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(100px) !important;
+  -webkit-backdrop-filter: blur(100px) !important;
 }
