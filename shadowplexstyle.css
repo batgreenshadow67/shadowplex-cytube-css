@@ -301,7 +301,7 @@ table {
 
 #footer,
 footer {
-  background: transparent !important;
+  background: #04150ccc !important;
 }
 #footer .credit,
 #footer .text-muted,
@@ -316,17 +316,4 @@ footer a {
 footer a:hover {
   color: #39ff10 !important;
   text-shadow: 0 0 3px #39ff10, 0 0 6px #39ff1099;
-}
-
-/* Playlist outline: green */
-#queuecontainer,
-#queue,
-#queue .queue_entry,
-#queue .list-group-item {
-  border-color: #1f8a4c !important;
-}
-
-#queuecontainer {
-  border: 1px solid #1f8a4c !important;
-  box-shadow: 0 0 6px #39ff1033 !important;
 }
