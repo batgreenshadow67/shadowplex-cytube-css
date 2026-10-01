@@ -281,3 +281,10 @@ table {
   text-shadow: 0 0 4px currentColor !important;
   text-shadow: 0 0 4px color-mix(in srgb, currentColor 50%, transparent) !important;
 }
+/* Navbar channel name (top left): bright green with a glow */
+.navbar .navbar-brand,
+.navbar .navbar-brand:hover,
+.navbar .navbar-brand:focus {
+  color: #39ff10 !important;
+  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
+}
