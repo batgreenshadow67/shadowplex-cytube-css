@@ -348,9 +348,9 @@ footer a:hover {
   color: #39ff10 !important;
   text-shadow: 0 0 3px #39ff10, 0 0 6px #39ff1099 !important;
 }
-/* Now-playing title: bright green */
+/* Now-playing title: softer green */
 #currenttitle {
-  color: #39ff10 !important;
+  color: #3ddc84 !important;
 }
 
 /* Button icons: slight bright green tint */
