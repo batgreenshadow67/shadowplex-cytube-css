@@ -359,7 +359,7 @@ footer a:hover {
 .btn .glyphicon,
 .navbar-icon i {
   color: #b4ffa6 !important;
-  color: color-mix(in srgb, #39ff10 35%, white) !important;
+  color: color-mix(in srgb, #39ff10 20%, white) !important;
 }
 
 
@@ -371,7 +371,7 @@ footer a:hover {
 .btn-chat:hover,
 .btn-chat:focus {
   color: #b4ffa6 !important;
-  color: color-mix(in srgb, #39ff10 35%, white) !important;
+  color: color-mix(in srgb, #39ff10 20%, white) !important;
 }
 
 /* AFK button: softer glow while it's on */
