@@ -1,1 +1,180 @@
+@import url("https://checkthesedubs.github.io/css/emote-fx.min.css");
 
+.channel-emote {
+    max-width: 250px !important;
+    max-height: 72px !important;
+    display: inline-block!important;
+}
+
+.tenor-chat-embed {
+    display: inline-block;
+    position: relative;
+    max-width: 250px;
+    max-height: 96px;
+}
+
+
+
+
+/* Dark Glass -> Green Glass override */
+.navbar {
+  background-image: -webkit-linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%) !important;
+  background-image: linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%) !important;
+  background-color: #0b5c2e8c !important;
+}
+
+#chatheader { border-bottom: 1px solid #0f3a1c !important; color: #4fbf7e !important; }
+
+#chat-footer, #chatheader, #messagebuffer, .modal-content, .well {
+  background: #000f08eb !important;
+  border-color: #0f3a1c !important;
+  box-shadow: inset 0 0 6px #1e4a2ab2, inset 0 0 2px #2f8a5240 !important;
+}
+
+.nick-hover { background: #2f8a4a42 !important; }
+
+input.form-control[type=email],
+input.form-control[type=password],
+input.form-control[type=text],
+textarea.form-control {
+  background-color: #051f0f8c !important;
+  box-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c !important;
+}
+
+#newmessages-indicator-bghack { background: rgba(2, 90, 40, .77) !important; border-bottom: 1px solid #1fff8aba !important; }
+#messagebuffer a, #motdwrap a { color: #3ddc84 !important; }
+#messagebuffer a:visited, #motdwrap a:visited { color: #7fdba0 !important; }
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  background-image: linear-gradient(#29c76f, #1fae5c8c 20%, #063a1a33 80%) !important;
+  border: 1px solid #0f3a1c !important;
+}
+.nav-tabs { border-bottom: 1px solid #3f6b5282 !important; }
+.modal-footer { border-top: 1px solid #3f6b5282 !important; }
+
+.timestamp { color: #66d99a59 !important; }
+#currenttitle { color: #6ca383 !important; }
+#userlist { background: rgba(6, 36, 20, .7) !important; }
+
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:focus,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > li > a:focus,
+.navbar-inverse .navbar-nav > li > a:hover {
+  background-image: linear-gradient(#62e0a163, #fff0) !important;
+}
+
+.modal-header > h4, .navbar .navbar-brand { color: #3ddc84 !important; }
+.navbar-inverse .navbar-nav > li > a, .navbar-inverse .navbar-text { color: #3f9e68 !important; }
+.nav > li > a:focus, .nav > li > a:hover { background-color: #2ecc7185 !important; }
+
+.text-info { color: #7fdba0 !important; }
+
+/* Fix remaining purple: navbar background + text field insides */
+.navbar {
+  background-color: #0a5c308c !important; /* was #0000ff8c (blue/purple-reading) */
+}
+
+input.form-control[type=email],
+input.form-control[type=password],
+input.form-control[type=text],
+textarea.form-control {
+  background-color: #051f0f8c !important;
+  border: 0 !important;
+  box-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c !important;
+}
+
+/* in case a modal-scoped rule is winning instead */
+.modal input.form-control[type=text],
+.modal textarea.form-control {
+  background-color: #051f0f8c !important;
+  border-color: #1e4a2ab2 !important;
+}
+/* TheGreenshadow gets a distinct green name in chat */
+.chat-msg-TheGreenshadow .username {
+  color: #39ff10 !important;
+  text-shadow: 0 0 5px #39ff1080 !important; /* matches the glow style other names have */
+}
+
+/* GreenshadowOnLaptop gets a distinct green name in chat */
+.chat-msg-GreenshadowOnLaptop .username {
+  color: #39ff10 !important;
+  text-shadow: 0 0 5px #39ff1080 !important; /* matches the glow style other names have */
+}
+
+
+.userlist_owner {
+  color: #39ff10 !important;
+}
+
+/* AFK toggle - active state */
+#afktoggle.afkactive {
+  color: #2ecc71 !important;
+  background: rgba(46, 204, 113, .25) !important;
+}
+#afktoggle.afkactive:hover {
+  background-image: linear-gradient(#020202, #0a1f10 40%, #123a1d) !important;
+  background-repeat: no-repeat !important;
+  color: #4fe08a !important;
+}
+
+/* Primary buttons (Save, etc.) */
+.btn-primary,
+.btn-primary:active,
+.btn-primary:hover {
+  background-image: linear-gradient(#0f9648f2, #045a2bdb 30%, #0be8608a 80%) !important;
+}
+.btn-primary:active,
+.btn-primary:hover {
+  background-color: #2ecc71 !important;
+}
+
+/* Checkboxes */
+input[type=checkbox] {
+  accent-color: #2ecc71 !important;
+}
+
+/* Default button hover/active state - currently blue */
+.btn-default:active,
+.btn-default:hover {
+  background-color: #1a9c5e !important;
+}
+
+/* Optional: also green-ify the resting gradient/tint to match more closely */
+.btn-default,
+.btn-default:active,
+.btn-default:hover {
+  background-color: #13866442 !important;
+  background-image: linear-gradient(#1a5b4cd9, #022d2d80 30%, #03716659 80%) !important;
+}
+
+/* Keep navbar brand in its original HTML casing, not forced lowercase */
+.navbar .navbar-brand {
+  text-transform: none !important;
+}
+
+#chatline {
+  background-color: #051f0f8c !important;
+  box-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c !important;
+}
+
+/* Chat toolbar buttons (emote menu, GIF search, AFK, etc.) - keep text white */
+.btn-chat {
+  color: #ffffff !important;
+}
+.btn-chat:hover,
+.btn-chat:focus {
+  color: #ffffff !important;
+}
+
+#nav-collapsible {
+  background-color: #04150c96 !important;
+  background-image: linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%) !important;
+}
+
+/* Table backgrounds */
+table {
+  background-color: #000e07cc !important; /* cc = ~80% opacity, adjust as needed */
+}
