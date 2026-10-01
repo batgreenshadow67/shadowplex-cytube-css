@@ -218,38 +218,36 @@ table {
   background-color: #0000002e !important;
 }
 
-/* Chat footer (message field + emote/GIF/AFK buttons) background image */
-#chat-footer {
-  background-color: #000f08 !important;
-  background-image:
-    linear-gradient(#000f0840, #000f08a6),
-    url("https://cdn.imgchest.com/files/666b76540c88.png") !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
+/* Chat background image: one blurred layer behind the chat */
+#chatwrap {
+  isolation: isolate;
+}
+#chatwrap::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--chatheaderheight, 32px) - 8px);
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  clip-path: inset(8px);
+  background: url("https://cdn.imgchest.com/files/666b76540c88.png") right / cover no-repeat;
+  filter: blur(3px);
+  z-index: -1;
+  pointer-events: none;
 }
 
-/* Chat message area background image: clearer and more transparent */
+/* Tinted, see-through panels on top of the image */
 #messagebuffer {
-  background-color: #000f08 !important;
-  background-image:
-    linear-gradient(#000f0833, #000f0866),
-    url("https://cdn.imgchest.com/files/666b76540c88.png") !important;
-  background-size: cover !important;
-  background-position: right !important;
-  background-repeat: no-repeat !important;
+  background: linear-gradient(#000f0833, #000f0866) !important;
+  backdrop-filter: none !important;
+}
+#chat-footer {
+  background: linear-gradient(#000f0840, #000f08a6) !important;
+  backdrop-filter: none !important;
 }
 
 /* Every name glows in its own color */
 .username {
   text-shadow: 0 0 5px currentColor !important;
   text-shadow: 0 0 5px color-mix(in srgb, currentColor 50%, transparent) !important;
-}
-
-/* Moderate blur behind chat and footer */
-#messagebuffer,
-#chat-footer {
-  background-color: transparent !important;
-  backdrop-filter: blur(100px) !important;
-  -webkit-backdrop-filter: blur(100px) !important;
 }
