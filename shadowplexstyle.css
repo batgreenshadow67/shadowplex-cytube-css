@@ -1,203 +1,57 @@
 @import url("https://checkthesedubs.github.io/css/emote-fx.min.css");
 
+/* ============================================================
+   Theme variables - change a color here, it updates everywhere
+   ============================================================ */
+:root {
+  --neon:        #39ff10;   /* bright accent: hovers, owner names, glows */
+  --green:       #3ddc84;   /* headings, titles */
+  --link:        #3f9e68;   /* links + navbar text at rest */
+  --muted:       #6ca383;   /* timestamps, footer text */
+  --border:      #0f3a1c;
+  --input-bg:    #051f0f8c;
+  --input-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c;
+  --panel:       #000f08eb;
+  --nav-gradient: linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%);
+  --btn-tint:    color-mix(in srgb, #39ff10 20%, white);
+}
+
+/* ============================================================
+   Emotes / embeds
+   ============================================================ */
 .channel-emote {
-    max-width: 250px !important;
-    max-height: 72px !important;
-    display: inline-block!important;
+  max-width: 250px !important;
+  max-height: 72px !important;
+  display: inline-block !important;
 }
 
 .tenor-chat-embed {
-    display: inline-block;
-    position: relative;
-    max-width: 250px;
-    max-height: 96px;
+  display: inline-block;
+  position: relative;
+  max-width: 250px;
+  max-height: 96px;
 }
 
-
-
-
-/* Dark Glass -> Green Glass override */
+/* ============================================================
+   Navbar
+   ============================================================ */
 .navbar {
-  background-image: -webkit-linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%) !important;
-  background-image: linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%) !important;
-  background-color: #0b5c2e8c !important;
+  background-image: var(--nav-gradient) !important;
+  background-color: #0a5c308c !important;
 }
-
-#chatheader { border-bottom: 1px solid #0f3a1c !important; color: #4fbf7e !important; }
-
-#chat-footer, #chatheader, #messagebuffer, .modal-content, .well {
-  background: #000f08eb !important;
-  border-color: #0f3a1c !important;
-  box-shadow: inset 0 0 6px #1e4a2ab2, inset 0 0 2px #2f8a5240 !important;
-}
-
-.nick-hover { background: #2f8a4a42 !important; }
-
-input.form-control[type=email],
-input.form-control[type=password],
-input.form-control[type=text],
-textarea.form-control {
-  background-color: #051f0f8c !important;
-  box-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c !important;
-}
-
-#newmessages-indicator-bghack { background: rgba(2, 90, 40, .77) !important; border-bottom: 1px solid #1fff8aba !important; }
-#messagebuffer a, #motdwrap a { color: #3ddc84 !important; }
-#messagebuffer a:visited, #motdwrap a:visited { color: #7fdba0 !important; }
-
-.nav-tabs > li.active > a,
-.nav-tabs > li.active > a:focus,
-.nav-tabs > li.active > a:hover {
-  background-image: linear-gradient(#29c76f, #1fae5c8c 20%, #063a1a33 80%) !important;
-  border: 1px solid #0f3a1c !important;
-}
-.nav-tabs { border-bottom: 1px solid #3f6b5282 !important; }
-.modal-footer { border-top: 1px solid #3f6b5282 !important; }
-
-.timestamp { color: #66d99a59 !important; }
-#currenttitle { color: #6ca383 !important; }
-#userlist { background: rgba(6, 36, 20, .7) !important; }
-
-.navbar-inverse .navbar-nav > .active > a,
-.navbar-inverse .navbar-nav > .active > a:focus,
-.navbar-inverse .navbar-nav > .active > a:hover,
-.navbar-inverse .navbar-nav > li > a:focus,
-.navbar-inverse .navbar-nav > li > a:hover {
-  background-image: linear-gradient(#62e0a163, #fff0) !important;
-}
-
-.modal-header > h4, .navbar .navbar-brand { color: #3ddc84 !important; }
-.navbar-inverse .navbar-nav > li > a, .navbar-inverse .navbar-text { color: #3f9e68 !important; }
-.nav > li > a:focus, .nav > li > a:hover { background-color: #2ecc7185 !important; }
-
-.text-info { color: #7fdba0 !important; }
-
-/* Fix remaining purple: navbar background + text field insides */
-.navbar {
-  background-color: #0a5c308c !important; /* was #0000ff8c (blue/purple-reading) */
-}
-
-input.form-control[type=email],
-input.form-control[type=password],
-input.form-control[type=text],
-textarea.form-control {
-  background-color: #051f0f8c !important;
-  border: 0 !important;
-  box-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c !important;
-}
-
-/* in case a modal-scoped rule is winning instead */
-.modal input.form-control[type=text],
-.modal textarea.form-control {
-  background-color: #051f0f8c !important;
-  border-color: #1e4a2ab2 !important;
-}
-/* TheGreenshadow gets a distinct green name in chat */
-.chat-msg-TheGreenshadow .username {
-  color: #39ff10 !important;
-  text-shadow: 0 0 5px #39ff1080 !important; /* matches the glow style other names have */
-}
-
-/* GreenshadowOnLaptop gets a distinct green name in chat */
-.chat-msg-GreenshadowOnLaptop .username {
-  color: #39ff10 !important;
-  text-shadow: 0 0 5px #39ff1080 !important; /* matches the glow style other names have */
-}
-
-
-.userlist_owner {
-  color: #39ff10 !important;
-}
-
-/* AFK toggle - active state */
-#afktoggle.afkactive {
-  color: #2ecc71 !important;
-  background: rgba(46, 204, 113, .25) !important;
-}
-#afktoggle.afkactive:hover {
-  background-image: linear-gradient(#020202, #0a1f10 40%, #123a1d) !important;
-  background-repeat: no-repeat !important;
-  color: #4fe08a !important;
-}
-
-/* Primary buttons (Save, etc.) */
-.btn-primary,
-.btn-primary:active,
-.btn-primary:hover {
-  background-image: linear-gradient(#0f9648f2, #045a2bdb 30%, #0be8608a 80%) !important;
-}
-.btn-primary:active,
-.btn-primary:hover {
-  background-color: #2ecc71 !important;
-}
-
-/* Checkboxes */
-input[type=checkbox] {
-  accent-color: #2ecc71 !important;
-}
-
-/* Default button hover/active state - currently blue */
-.btn-default:active,
-.btn-default:hover {
-  background-color: #1a9c5e !important;
-}
-
-/* Optional: also green-ify the resting gradient/tint to match more closely */
-.btn-default,
-.btn-default:active,
-.btn-default:hover {
-  background-color: #13866442 !important;
-  background-image: linear-gradient(#1a5b4cd9, #022d2d80 30%, #03716659 80%) !important;
-}
-
-/* Keep navbar brand in its original HTML casing, not forced lowercase */
-.navbar .navbar-brand {
-  text-transform: none !important;
-}
-
-#chatline {
-  background-color: #051f0f8c !important;
-  box-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c !important;
-}
-
-/* Chat toolbar buttons (emote menu, GIF search, AFK, etc.) - keep text white */
-.btn-chat {
-  color: #ffffff !important;
-}
-.btn-chat:hover,
-.btn-chat:focus {
-  color: #ffffff !important;
-}
-
 #nav-collapsible {
   background-color: #04150c96 !important;
-  background-image: linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%) !important;
+  background-image: var(--nav-gradient) !important;
 }
 
-/* Table backgrounds */
-table {
-  background-color: #000e07cc !important; /* cc = ~80% opacity, adjust as needed */
-}
+.navbar-inverse .navbar-nav > li > a,
+.navbar-inverse .navbar-text { color: var(--link) !important; }
 
-
-/* Green glow on button text when hovering */
-.btn,
-.btn-default,
-.btn-primary,
-.btn-chat,
-.navbar-nav > li > a {
-  transition: text-shadow .2s ease, color .2s ease;
+/* Active tab keeps its gradient... */
+.navbar-inverse .navbar-nav > .active > a {
+  background-image: linear-gradient(#62e0a163, #fff0) !important;
 }
-
-.btn:hover,
-.btn-default:hover,
-.btn-primary:hover,
-.btn-chat:hover,
-.btn:focus,
-.btn-chat:focus {
-  text-shadow: 0 0 3px #39ff10, 0 0 7px #39ff10, 0 0 12px #39ff10, 0 0 20px #39ff10aa !important;
-}
-/* Top bar buttons: no green background on hover, glow the text instead */
+/* ...but hover/focus: no background, bright text + glow */
 .navbar .navbar-nav > li > a:hover,
 .navbar .navbar-nav > li > a:focus,
 .navbar-inverse .navbar-nav > li > a:hover,
@@ -206,22 +60,33 @@ table {
 .navbar-inverse .navbar-nav > .active > a:focus {
   background-color: transparent !important;
   background-image: none !important;
-  text-shadow: 0 0 3px #39ff10, 0 0 7px #39ff1099 !important;
+  color: var(--neon) !important;
+  text-shadow: 0 0 3px var(--neon), 0 0 7px #39ff1099 !important;
 }
 
-/* Semi-transparent menus (emote menu, GIF search, script settings, etc.) */
-.modal .modal-content {
-  background: #000f08a6 !important;
-  backdrop-filter: blur(8px);
+/* Channel name (top left) */
+.navbar .navbar-brand,
+.navbar .navbar-brand:hover,
+.navbar .navbar-brand:focus {
+  color: var(--neon) !important;
+  text-shadow: 0 0 4px var(--neon), 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
+  text-transform: none !important;
 }
-.modal table {
-  background-color: #0000002e !important;
+
+.nav > li > a:focus,
+.nav > li > a:hover { background-color: #2ecc7185 !important; }
+
+/* ============================================================
+   Panels / chat area
+   ============================================================ */
+#chat-footer, #chatheader, #messagebuffer, .modal-content, .well {
+  background: var(--panel) !important;
+  border-color: var(--border) !important;
+  box-shadow: inset 0 0 6px #1e4a2ab2, inset 0 0 2px #2f8a5240 !important;
 }
 
 /* Chat background image: one blurred layer behind the chat */
-#chatwrap {
-  isolation: isolate;
-}
+#chatwrap { isolation: isolate; }
 #chatwrap::before {
   content: "";
   position: absolute;
@@ -246,166 +111,193 @@ table {
   backdrop-filter: none !important;
 }
 
-/* Every name glows in its own color */
-.username {
-  text-shadow: 0 0 6px currentColor !important;
-  text-shadow: 0 0 6px color-mix(in srgb, currentColor 80%, transparent), 0 0 12px color-mix(in srgb, currentColor 40%, transparent) !important;
+/* Header bar */
+#chatheader {
+  border-bottom: 1px solid var(--border) !important;
+  color: #4fbf7e !important;
 }
-
-/* Links in chat and MOTD: bright green with a glow */
-#messagebuffer a,
-#messagebuffer a:visited,
-#motdwrap a,
-#motdwrap a:visited {
-  color: #39ff10 !important;
-  text-shadow: 0 0 3px #39ff1066 !important;
-}
-#messagebuffer a:hover,
-#motdwrap a:hover {
-  text-shadow: 0 0 3px #39ff10, 0 0 6px #39ff1099 !important;
-}
-
-/* MOTD: only "The Green's Shadowplex" glows */
-#motdwrap h1 span {
-  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
-}
-/* Chat header bar (title, icons, user count) green glow */
 #chatheader,
 #chatheader i,
 #currenttitle,
-#usercount {
-  text-shadow: 0 0 3px #39ff1066 !important;
+#usercount { text-shadow: 0 0 3px #39ff1066 !important; }
+#currenttitle { color: var(--green) !important; }
+
+.timestamp { color: #66d99a59 !important; }
+.nick-hover { background: #2f8a4a42 !important; }
+#newmessages-indicator-bghack {
+  background: rgba(2, 90, 40, .77) !important;
+  border-bottom: 1px solid #1fff8aba !important;
 }
-/* Userlist names glow in their own color */
+
+/* ============================================================
+   Names
+   ============================================================ */
+/* Every name glows in its own color */
+.username {
+  text-shadow: 0 0 6px currentColor !important;
+  text-shadow: 0 0 6px color-mix(in srgb, currentColor 80%, transparent),
+               0 0 12px color-mix(in srgb, currentColor 40%, transparent) !important;
+}
+
+/* Your accounts: distinct green name */
+.chat-msg-TheGreenshadow .username,
+.chat-msg-GreenshadowOnLaptop .username {
+  color: var(--neon) !important;
+  text-shadow: 0 0 5px #39ff1080 !important;
+}
+.userlist_owner { color: var(--neon) !important; }
+
+/* Userlist */
+#userlist { background: rgba(6, 36, 20, .7) !important; }
 #userlist .userlist_item > span:nth-child(2) {
   text-shadow: 0 0 4px currentColor !important;
   text-shadow: 0 0 4px color-mix(in srgb, currentColor 50%, transparent) !important;
 }
-/* Navbar channel name (top left): bright green with a glow */
-.navbar .navbar-brand,
-.navbar .navbar-brand:hover,
-.navbar .navbar-brand:focus {
-  color: #39ff10 !important;
-  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
-}
 
-/* Page footer: green scheme instead of the red plugin bar */
-#pluginfooter {
-  background: #0c401e !important;
-  border-top: 1px solid #0f3a1c;
-  color: #6ca383;
-}
-#pluginfooter span {
-  color: #3ddc84 !important;
-}
-
-#footer,
-footer {
-  background: #04150ccc !important;
-}
-#footer .credit,
-#footer .text-muted,
-footer .text-muted {
-  color: #6ca383 !important;
-}
-#footer a,
-footer a {
-  color: #3ddc84 !important;
-}
-#footer a:hover,
-footer a:hover {
-  color: #39ff10 !important;
-  text-shadow: 0 0 3px #39ff10, 0 0 6px #39ff1099;
-}
-
-/* Top bar: text turns bright green on hover, like the links */
-.navbar .navbar-nav > li > a:hover,
-.navbar .navbar-nav > li > a:focus,
-.navbar-inverse .navbar-nav > li > a:hover,
-.navbar-inverse .navbar-nav > li > a:focus,
-.navbar-inverse .navbar-nav > .active > a:hover,
-.navbar-inverse .navbar-nav > .active > a:focus {
-  color: #39ff10 !important;
-}
-/* All links: navbar green at rest, bright green on hover */
-#messagebuffer a,
-#messagebuffer a:visited,
-#motdwrap a,
-#motdwrap a:visited,
-#footer a,
-#footer a:visited,
-footer a,
-footer a:visited {
-  color: #3f9e68 !important;
+/* ============================================================
+   Links (chat, MOTD, footer)
+   ============================================================ */
+#messagebuffer a, #messagebuffer a:visited,
+#motdwrap a,      #motdwrap a:visited,
+#footer a,        #footer a:visited,
+footer a,         footer a:visited {
+  color: var(--link) !important;
   text-shadow: 0 0 3px #3f9e6866 !important;
   transition: color .2s ease, text-shadow .2s ease;
 }
-
 #messagebuffer a:hover,
 #motdwrap a:hover,
 #footer a:hover,
 footer a:hover {
-  color: #39ff10 !important;
-  text-shadow: 0 0 3px #39ff10, 0 0 6px #39ff1099 !important;
-}
-/* Now-playing title: softer green */
-#currenttitle {
-  color: #3ddc84 !important;
+  color: var(--neon) !important;
+  text-shadow: 0 0 3px var(--neon), 0 0 6px #39ff1099 !important;
 }
 
-/* Button icons: slight bright green tint */
-.btn i,
-.btn .fa,
-.btn .glyphicon,
-.navbar-icon i {
-  color: #b4ffa6 !important;
-  color: color-mix(in srgb, #39ff10 20%, white) !important;
+/* MOTD: only the title glows */
+#motdwrap h1 span {
+  text-shadow: 0 0 4px var(--neon), 0 0 8px #39ff10cc, 0 0 14px #39ff1066 !important;
 }
 
+/* ============================================================
+   Inputs
+   ============================================================ */
+input.form-control[type=email],
+input.form-control[type=password],
+input.form-control[type=text],
+textarea.form-control,
+#chatline {
+  background-color: var(--input-bg) !important;
+  box-shadow: var(--input-shadow) !important;
+}
+input.form-control[type=email],
+input.form-control[type=password],
+input.form-control[type=text],
+textarea.form-control { border: 0 !important; }
 
-/* Text on buttons: slight bright green tint, same as the icons */
-.btn,
+input[type=checkbox] { accent-color: #2ecc71 !important; }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn, .btn-default, .btn-primary,
+.btn-chat, .btn-chat:hover, .btn-chat:focus {
+  color: var(--btn-tint) !important;
+}
+.btn i, .btn .fa, .btn .glyphicon, .navbar-icon i {
+  color: var(--btn-tint) !important;
+}
+
+.btn, .btn-default, .btn-primary, .btn-chat, .navbar-nav > li > a {
+  transition: text-shadow .2s ease, color .2s ease;
+}
+.btn:hover, .btn-default:hover, .btn-primary:hover, .btn-chat:hover,
+.btn:focus, .btn-chat:focus {
+  text-shadow: 0 0 3px var(--neon), 0 0 7px var(--neon),
+               0 0 12px var(--neon), 0 0 20px #39ff10aa !important;
+}
+
 .btn-default,
-.btn-primary,
-.btn-chat,
-.btn-chat:hover,
-.btn-chat:focus {
-  color: #b4ffa6 !important;
-  color: color-mix(in srgb, #39ff10 20%, white) !important;
+.btn-default:active,
+.btn-default:hover {
+  background-color: #13866442 !important;
+  background-image: linear-gradient(#1a5b4cd9, #022d2d80 30%, #03716659 80%) !important;
 }
 
-/* AFK button: softer glow while it's on */
+.btn-primary,
+.btn-primary:active,
+.btn-primary:hover {
+  background-image: linear-gradient(#0f9648f2, #045a2bdb 30%, #0be8608a 80%) !important;
+}
+.btn-primary:active,
+.btn-primary:hover { background-color: #2ecc71 !important; }
+
+/* AFK toggle */
 #afktoggle.afkactive,
 #afktoggle.afkactive:hover,
 #afktoggle.afkactive:focus {
+  color: #2ecc71 !important;
   text-shadow: 0 0 3px #2ecc7166 !important;
 }
-/* Changelog icon: behave like the other navbar items */
-.navbar [id*="changelog" i],
-.navbar [class*="changelog" i],
-.navbar [id*="changelog" i] i,
-.navbar [class*="changelog" i] i,
-.navbar [id*="changelog" i] .glyphicon,
-.navbar [class*="changelog" i] .glyphicon,
-.navbar [id*="changelog" i] .fa,
-.navbar [class*="changelog" i] .fa {
+#afktoggle.afkactive { background: rgba(46, 204, 113, .25) !important; }
+#afktoggle.afkactive:hover {
+  background-image: linear-gradient(#020202, #0a1f10 40%, #123a1d) !important;
+  background-repeat: no-repeat !important;
+  color: #4fe08a !important;
+}
+
+/* ============================================================
+   Tabs / modals / tables
+   ============================================================ */
+.nav-tabs { border-bottom: 1px solid #3f6b5282 !important; }
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  background-image: linear-gradient(#29c76f, #1fae5c8c 20%, #063a1a33 80%) !important;
+  border: 1px solid var(--border) !important;
+}
+.modal-header > h4 { color: var(--green) !important; }
+.modal-footer { border-top: 1px solid #3f6b5282 !important; }
+.text-info { color: #7fdba0 !important; }
+
+/* Semi-transparent menus (emote menu, GIF search, script settings...) */
+.modal .modal-content {
+  background: #000f08a6 !important;
+  backdrop-filter: blur(8px);
+}
+
+table { background-color: #000e07cc !important; }
+.modal table { background-color: #0000002e !important; }
+
+/* ============================================================
+   Page footer
+   ============================================================ */
+#pluginfooter {
+  background: #0c401e !important;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+#pluginfooter span { color: var(--green) !important; }
+
+#footer,
+footer { background: #04150ccc !important; }
+#footer .credit,
+#footer .text-muted,
+footer .text-muted { color: var(--muted) !important; }
+
+/* ============================================================
+   Changelog icon: behaves like the other navbar items
+   (kept last so it overrides everything above)
+   ============================================================ */
+.navbar :is([id*="changelog" i], [class*="changelog" i]),
+.navbar :is([id*="changelog" i], [class*="changelog" i]) :is(i, .glyphicon, .fa) {
   color: var(--link) !important;
   background: transparent !important;
   border-color: transparent !important;
   box-shadow: none !important;
   transition: color .2s ease, text-shadow .2s ease;
 }
-
-.navbar [id*="changelog" i]:hover,
-.navbar [class*="changelog" i]:hover,
-.navbar [id*="changelog" i]:focus,
-.navbar [class*="changelog" i]:focus,
-.navbar [id*="changelog" i]:hover i,
-.navbar [class*="changelog" i]:hover i,
-.navbar [id*="changelog" i]:hover .glyphicon,
-.navbar [class*="changelog" i]:hover .glyphicon,
-.navbar [id*="changelog" i]:hover .fa,
-.navbar [class*="changelog" i]:hover .fa {
+.navbar :is([id*="changelog" i], [class*="changelog" i]):is(:hover, :focus),
+.navbar :is([id*="changelog" i], [class*="changelog" i]):is(:hover, :focus) :is(i, .glyphicon, .fa) {
   color: var(--neon) !important;
   text-shadow: 0 0 3px var(--neon), 0 0 7px #39ff1099 !important;
 }
