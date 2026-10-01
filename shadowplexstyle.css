@@ -95,8 +95,8 @@
   right: -8px;
   bottom: -8px;
   clip-path: inset(8px);
-  background: url("https://cdn.imgchest.com/files/666b76540c88.png") left top / auto 200% no-repeat;
-  filter: blur(10px);
+  background: url("https://cdn.imgchest.com/files/666b76540c88.png") right top / auto 200% no-repeat;
+  filter: blur(15px);
   z-index: -1;
   pointer-events: none;
 }
