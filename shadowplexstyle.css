@@ -217,3 +217,14 @@ table {
 .modal table {
   background-color: #0000002e !important;
 }
+
+/* Chat footer (message field + emote/GIF/AFK buttons) background image */
+#chat-footer {
+  background-color: #000f08 !important;
+  background-image:
+    linear-gradient(#000f0840, #000f08a6),
+    url("https://cdn.imgchest.com/files/0a6d6bde6ffa.png") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
