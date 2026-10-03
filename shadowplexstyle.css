@@ -139,13 +139,11 @@
                0 0 12px color-mix(in srgb, currentColor 40%, transparent) !important;
 }
 
-/* Your accounts: distinct green name */
+/* Your accounts: distinct green name (glow comes from .username) */
 .chat-msg-TheGreenshadow .username,
 .chat-msg-GreenshadowOnLaptop .username {
   color: var(--neon) !important;
-  text-shadow: 0 0 5px #39ff1080 !important;
 }
-.userlist_owner { color: var(--neon) !important; }
 
 /* Userlist */
 #userlist { background: rgba(6, 36, 20, .7) !important; }
@@ -300,4 +298,10 @@ footer .text-muted { color: var(--muted) !important; }
 .navbar :is([id*="changelog" i], [class*="changelog" i]):is(:hover, :focus) :is(i, .glyphicon, .fa) {
   color: var(--neon) !important;
   text-shadow: 0 0 3px var(--neon), 0 0 7px #39ff1099 !important;
+}
+
+/* Messages that mention you */
+#messagebuffer .nick-highlight {
+  background: linear-gradient(90deg, #39ff1033, #39ff1012 60%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--neon), 0 0 10px #39ff1026 !important;
 }
