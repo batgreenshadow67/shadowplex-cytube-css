@@ -303,9 +303,11 @@ footer .text-muted { color: var(--muted) !important; }
 #messagebuffer .nick-highlight {
   box-shadow:
     inset 0 0 0 1px #4a9a26,         /* thin outline all around */
-    inset 0 0 10px #5aae2a77,        /* soft glow along the inner edge */
-    inset 0 0 0 999px #235a0700 !important;  /* green tint over the message */
+    inset 0 0 10px #5aae2a77;        /* soft glow along the inner edge */
   border-radius: 3px;
+}
+#messagebuffer .nick-highlight:not(.nick-hover) {
+  background: transparent !important;
 }
 
 /* Owner names in the userlist: same colour + glow as in chat */
