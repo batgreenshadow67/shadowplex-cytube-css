@@ -302,9 +302,10 @@ footer .text-muted { color: var(--muted) !important; }
 /* Messages that mention you */
 #messagebuffer .nick-highlight {
   box-shadow:
-    inset 3px 0 0 #5aae2a,           /* left stripe */
-    inset 0 0 0 999px #5aae2a55,     /* tint over the whole message */
-    0 0 6px #5aae2a1a !important;    /* faint outer glow */
+    inset 0 0 0 1px #4a9a26,         /* thin outline all around */
+    inset 0 0 10px #5aae2a77,        /* soft glow along the inner edge */
+    inset 0 0 0 999px #2f6a1566 !important;  /* green tint over the message */
+  border-radius: 3px;
 }
 
 /* Owner names in the userlist: same colour + glow as in chat */
