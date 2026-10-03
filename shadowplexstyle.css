@@ -302,9 +302,9 @@ footer .text-muted { color: var(--muted) !important; }
 /* Messages that mention you */
 #messagebuffer .nick-highlight {
   box-shadow:
-    inset 3px 0 0 var(--neon),           /* left stripe */
-    inset 0 0 0 999px #39ff1030,         /* green tint over the whole message */
-    0 0 10px #39ff1026 !important;       /* soft outer glow */
+    inset 3px 0 0 #3f9e68,           /* left stripe: muted green instead of neon */
+    inset 0 0 0 999px #2ecc7118,     /* tint over the whole message */
+    0 0 6px #2ecc710f !important;    /* faint outer glow */
 }
 
 /* Owner names in the userlist: same colour + glow as in chat */
