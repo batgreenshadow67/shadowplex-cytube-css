@@ -1,6 +1,7 @@
 /* ==========================================================
    The Plex With No Name - late-night / adult-swim-ish theme
-   Restored original look + smaller, dimmer timestamps.
+   Scanlines are painted as a background (no position changes,
+   no overlay), so they can't break the chat layout.
    @import lines MUST stay at the very top of this file.
    ========================================================== */
 @import url("https://checkthesedubs.github.io/css/emote-fx.min.css");
@@ -20,7 +21,7 @@
 }
 
 /* ---------- base: black page, white text, square corners ---------- */
-body, #mainpage, .navbar, .navbar-inverse, #chatwrap, #videowrap, #rightcontent, #leftcontent,
+body, #mainpage, .navbar, .navbar-inverse, #videowrap, #leftcontent,
 .well, .modal-content, #queue, #motdwrap, footer, #footer {
   background: #000 !important;
   color: #fff !important;
@@ -52,28 +53,18 @@ body, #chatline, .queue_entry, .btn, input, textarea {
 
 a { color: #fff !important; text-decoration: underline; }
 
-/* ---------- text selection fix (keeps chat readable when highlighted) ---------- */
-::selection {
-  background: #e00 !important;
-  color: #fff !important;
-}
-::-moz-selection {
-  background: #e00 !important;
-  color: #fff !important;
-}
-
-/* ---------- scanlines on chat + playlist only ----------
-   One overlay on #rightcontent instead of two stacked ones,
-   and a low z-index so it never sits on top of selected text. */
-#rightcontent { position: relative; }
-#rightcontent::after {
-  content: "";
-  position: absolute; inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px,
-    transparent 1px, transparent 3px);
-  z-index: 1;
+/* ---------- chat: slightly lighter box with scanlines (background only) ---------- */
+#chatwrap,
+#messagebuffer {
+  background-color: #0b0b0b !important;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.045) 0,
+    rgba(255,255,255,0.045) 1px,
+    transparent 1px,
+    transparent 3px
+  ) !important;
+  color: #fff;
 }
 
 /* ---------- monospace for chat and playlist ---------- */
