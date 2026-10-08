@@ -1,11 +1,11 @@
 /* ==========================================================
    The Plex With No Name - late-night / adult-swim-ish theme
-   All @import lines MUST stay at the very top of this file.
+   Restored original look + smaller, dimmer timestamps.
+   @import lines MUST stay at the very top of this file.
    ========================================================== */
 @import url("https://checkthesedubs.github.io/css/emote-fx.min.css");
-@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text&display=swap');
 
-/* ---------- emotes (from the original guide CSS) ---------- */
 .channel-emote {
     max-width: 250px !important;
     max-height: 72px !important;
@@ -20,129 +20,74 @@
 }
 
 /* ---------- base: black page, white text, square corners ---------- */
-body,
-#mainpage,
-.navbar,
-.navbar-inverse,
-footer,
-#footer {
-    background: #000 !important;
-    color: #fff;
-    border-color: #333 !important;
+body, #mainpage, .navbar, .navbar-inverse, #chatwrap, #videowrap, #rightcontent, #leftcontent,
+.well, .modal-content, #queue, #motdwrap, footer, #footer {
+  background: #000 !important;
+  color: #fff !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-color: #333 !important;
 }
 
-.well,
-.modal-content,
-#motdwrap,
-#queue,
-#userlist {
-    background: #000 !important;
-    color: #fff;
-    border-color: #333 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-}
-
-/* ---------- chat: only the message area and input, no layout changes ---------- */
-#messagebuffer {
-    background: #000;
-    color: #fff;
-}
-
-#chatline,
-input,
-textarea {
-    background: #0a0a0a !important;
-    color: #fff !important;
-    border: 1px solid #333 !important;
-    border-radius: 0 !important;
-}
-
-/* ---------- fonts ---------- */
-body,
-.btn {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+body, #chatline, .queue_entry, .btn, input, textarea {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 
 /* bumper-style headings and MOTD */
-#motdwrap,
-#motd,
-h1, h2, h3,
-.navbar-brand {
-    font-family: "Libre Caslon Text", Georgia, "Times New Roman", serif;
-    text-transform: lowercase;
-    letter-spacing: 0.5px;
+#motdwrap, #motd, h1, h2, h3, .navbar-brand {
+  font-family: "Libre Caslon Text", Georgia, "Times New Roman", serif !important;
+  text-transform: lowercase !important;
+  letter-spacing: 0.5px;
 }
 
-/* VHS-style monospace for chat and playlist */
-#messagebuffer,
-#chatline,
-.queue_entry,
+.btn, .btn-default {
+  background: #000 !important;
+  color: #fff !important;
+  border: 1px solid #fff !important;
+  border-radius: 0 !important;
+}
+.btn:hover { background: #fff !important; color: #000 !important; }
+
+.queue_entry { border-bottom: 1px solid #222 !important; background: #000 !important; }
+
+a { color: #fff !important; text-decoration: underline; }
+
+/* ---------- scanlines on chat + playlist only ---------- */
+#chatwrap, #rightcontent, #queue { position: relative; }
+#chatwrap::after, #rightcontent::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px,
+    transparent 1px, transparent 3px);
+  z-index: 5;
+}
+
+/* ---------- monospace for chat and playlist ---------- */
+#messagebuffer, #chatline, .queue_entry, .username {
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: 17px !important;
+}
+
+/* ---------- timestamps: smaller and blended into the background ---------- */
 .timestamp,
-.username {
-    font-family: "VT323", "Courier New", monospace;
-    font-size: 17px;
+#messagebuffer .timestamp,
+#messagebuffer [class*="timestamp"] {
+  font-family: "Courier New", Courier, monospace !important;
+  font-size: 12px !important;
+  color: #444 !important;
+  opacity: 0.85;
 }
 
-/* ---------- buttons ---------- */
-.btn,
-.btn-default {
-    background: #000 !important;
-    color: #fff !important;
-    border: 1px solid #fff !important;
-    border-radius: 0 !important;
-}
+/* ---------- red "REC" accent on the playing item ---------- */
+.queue_active { background: #000 !important; border-left: 4px solid #e00 !important; }
+.queue_active a { color: #fff !important; }
+.queue_active::before { content: "\25CF PLAY "; color: #e00; font-family: "Courier New", monospace; }
 
-.btn:hover {
-    background: #fff !important;
-    color: #000 !important;
-}
+/* faint glow on the video frame */
+#videowrap { box-shadow: 0 0 25px rgba(255,255,255,0.08) !important; }
 
-/* ---------- playlist ---------- */
-.queue_entry {
-    background: #000 !important;
-    border-bottom: 1px solid #222 !important;
-}
-
-/* currently playing: black with a red "rec" bar */
-.queue_active {
-    background: #000 !important;
-    border-left: 4px solid #e00 !important;
-}
-
-.queue_active a {
-    color: #fff !important;
-}
-
-.queue_active::before {
-    content: "\25CF PLAY ";
-    color: #e00;
-    font-family: "VT323", monospace;
-}
-
-/* ---------- links ---------- */
-a {
-    color: #fff;
-    text-decoration: underline;
-}
-
-/* ---------- video frame glow ---------- */
-#videowrap {
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.08) !important;
-}
-
-/* ---------- MOTD "bumper card" ---------- */
-.bumper {
-    text-align: center;
-    padding: 18px;
-    font-family: "Libre Caslon Text", Georgia, serif;
-    text-transform: lowercase;
-}
-
-.bumper small {
-    display: block;
-    margin-top: 6px;
-    font-family: "VT323", monospace;
-    letter-spacing: 2px;
-    color: #aaa;
-}
+/* MOTD "bumper card" */
+.bumper { text-align: center; padding: 18px; font-family: "Libre Caslon Text", Georgia, serif; text-transform: lowercase; }
+.bumper small { display: block; margin-top: 6px; font-family: "Courier New", monospace; letter-spacing: 2px; color: #aaa; }
