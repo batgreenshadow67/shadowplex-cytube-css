@@ -52,16 +52,28 @@ body, #chatline, .queue_entry, .btn, input, textarea {
 
 a { color: #fff !important; text-decoration: underline; }
 
-/* ---------- scanlines on chat + playlist only ---------- */
-#chatwrap, #rightcontent, #queue { position: relative; }
-#chatwrap::after, #rightcontent::after {
+/* ---------- text selection fix (keeps chat readable when highlighted) ---------- */
+::selection {
+  background: #e00 !important;
+  color: #fff !important;
+}
+::-moz-selection {
+  background: #e00 !important;
+  color: #fff !important;
+}
+
+/* ---------- scanlines on chat + playlist only ----------
+   One overlay on #rightcontent instead of two stacked ones,
+   and a low z-index so it never sits on top of selected text. */
+#rightcontent { position: relative; }
+#rightcontent::after {
   content: "";
   position: absolute; inset: 0;
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px,
     transparent 1px, transparent 3px);
-  z-index: 5;
+  z-index: 1;
 }
 
 /* ---------- monospace for chat and playlist ---------- */
