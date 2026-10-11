@@ -22,14 +22,11 @@
    Only needed if nothing is behind the chat right now.
    Uncomment and swap in your image.
    ============================================================ */
-/* Anchored to the bottom of the screen; if the image is taller than the
-   window, the extra gets cropped off the top. */
-#wrap {
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
-  background-position: center bottom !important;
-  background-size: cover !important;
+/*
+body {
+  background: url("https://cdn.imgchest.com/files/0d7e7ec1ccce.png") center / cover no-repeat fixed;
 }
+*/
 
 /* ============================================================
    Emotes / embeds
