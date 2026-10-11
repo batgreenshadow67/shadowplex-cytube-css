@@ -12,7 +12,7 @@
   --input-bg:    #051f0f8c;
   --input-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c;
   --panel:       #000f08eb;
-  --nav-gradient: linear-gradient(#14803f 0%, #0a4a26 100%);   /* smooth green gradient, top to bottom */
+  --nav-gradient: linear-gradient(#04150c96 0%, #000000e8 100%);   /* old green at the top, fading smoothly to black */
   --btn-tint:    color-mix(in srgb, #39ff10 20%, white);
   --chat-blur:   10px;      /* blur strength behind the chat panels */
 }
