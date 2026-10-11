@@ -12,7 +12,7 @@
   --input-bg:    #051f0f8c;
   --input-shadow: inset 0 0 4px #000000c9, 0 0 3px #a8e0bf5c;
   --panel:       #000f08eb;
-  --nav-gradient: linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%);
+  --nav-gradient: linear-gradient(#14803f 0%, #0a4a26 100%);   /* smooth green gradient, top to bottom */
   --btn-tint:    color-mix(in srgb, #39ff10 20%, white);
   --chat-blur:   10px;      /* blur strength behind the chat panels */
 }
@@ -22,11 +22,14 @@
    Only needed if nothing is behind the chat right now.
    Uncomment and swap in your image.
    ============================================================ */
-/*
-body {
-  background: url("https://cdn.imgchest.com/files/0d7e7ec1ccce.png") center / cover no-repeat fixed;
+/* Anchored to the bottom of the screen; if the image is taller than the
+   window, the extra gets cropped off the top. */
+#wrap {
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: center bottom !important;
+  background-size: cover !important;
 }
-*/
 
 /* ============================================================
    Emotes / embeds
