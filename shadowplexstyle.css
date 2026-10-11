@@ -270,6 +270,17 @@ table { background-color: #000e07cc !important; }
 .modal table { background-color: #0000002e !important; }
 
 /* ============================================================
+   MOTD: same see-through tone + blur as the chat
+   ============================================================ */
+#motdwrap {
+  background: linear-gradient(#000f0833, #000f0866) !important;
+  backdrop-filter: blur(var(--chat-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--chat-blur)) !important;
+}
+/* Tables inside the MOTD shouldn't add a second dark layer */
+#motdwrap table { background-color: transparent !important; }
+
+/* ============================================================
    Queue / playlist
    ============================================================ */
 #queue,
@@ -283,15 +294,16 @@ table { background-color: #000e07cc !important; }
 }
 #plmeta { color: var(--muted) !important; }
 
-/* Individual entries: slightly green-tinted, see-through */
+/* Individual entries: no tint of their own, so they show the same
+   dark see-through tone as the queue box (and the chat) */
 .queue_entry {
-  background: #0a5c3026 !important;
+  background: transparent !important;
   border: 1px solid var(--border) !important;
   color: var(--muted) !important;
   transition: background-color .2s ease, box-shadow .2s ease;
 }
 .queue_entry:hover {
-  background: #2ecc7133 !important;
+  background: #2f8a4a42 !important;   /* same as chat's .nick-hover */
   box-shadow: 0 0 6px #39ff1033 !important;
 }
 .queue_entry .qe_title,
@@ -308,7 +320,7 @@ table { background-color: #000e07cc !important; }
 
 /* Currently playing */
 .queue_entry.queue_active {
-  background: #2ecc7140 !important;
+  background: #2f8a4a42 !important;
   border-color: #4a9a26 !important;
   box-shadow: inset 0 0 10px #5aae2a55, 0 0 6px #39ff1033 !important;
 }
