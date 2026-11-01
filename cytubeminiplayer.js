@@ -429,3 +429,304 @@
 
   schedule();
 })();
+
+// !disco: when someone types !disco in chat, every viewer who has this script gets
+// colored lights, swinging beams, a mirror ball and music for a short while.
+//   !disco        starts it (ignored while one is already running)
+//   !disco off    stops it for everyone (same permission as starting)
+// Each viewer gets a small "Stop disco" button while it runs. To opt out for good in one
+// browser:  localStorage.setItem("disco_enabled", "0")
+// Music is a built-in synthesized disco beat, or set AUDIO_URL to play your own file.
+(function () {
+  // If this script already ran (e.g. you re-saved the channel JS), shut the old copy down first.
+  if (window.DISCO_STOP) { try { window.DISCO_STOP(); } catch (e) {} }
+
+  // ---- settings -----------------------------------------------------------
+  var DURATION = 30000;     // ms the disco lasts
+  var BPM = 120;            // beat speed (match it to your track if you use AUDIO_URL)
+  var VOLUME = 0.35;        // 0..1
+  var AUDIO_URL = "";       // optional: URL of an mp3/ogg. Empty = built-in synth beat
+  var MIN_RANK = 0;         // 0 = anyone can start it, 2 = moderators and up
+  var MAX_AGE = 15000;      // ms: ignore chat older than this (chat history replay on join)
+  var STARTUP_GUARD = 4000; // ms after load during which commands are ignored
+  var COLORS = ["#ff2bd6", "#00e5ff", "#ffe600", "#8a2be2", "#39ff14", "#ff7a00"];
+  var BEAMS = [
+    { x: 12, c: "#ff2bd6", d: 2.4, a: 30 },
+    { x: 37, c: "#00e5ff", d: 3.1, a: 24 },
+    { x: 63, c: "#ffe600", d: 2.8, a: 28 },
+    { x: 88, c: "#39ff14", d: 3.5, a: 34 }
+  ];
+  // Chord progression for the synth (Am, F, C, G): root in Hz and third in semitones.
+  var PROG = [
+    { root: 110.00, third: 3 },
+    { root: 87.31,  third: 4 },
+    { root: 130.81, third: 4 },
+    { root: 98.00,  third: 4 }
+  ];
+
+  var loadedAt = Date.now();
+  var running = false;
+  var beatTimer = 0, endTimer = 0, schedTimer = 0;
+  var beatIdx = 0;
+  var root = null, wash = null, banner = null;
+  var ctx = null, master = null, noiseBuf = null, nextTime = 0, step = 0;
+  var audioEl = null;
+
+  // ---- styles -------------------------------------------------------------
+  var styleEl = document.createElement("style");
+  styleEl.id = "disco-style";
+  styleEl.textContent =
+    "#disco-root{position:fixed;top:0;right:0;bottom:0;left:0;z-index:900;pointer-events:none;" +
+      "overflow:hidden;opacity:1;transition:opacity .6s;}" +
+    "#disco-root.out{opacity:0;}" +
+    "#disco-wash{position:absolute;top:0;right:0;bottom:0;left:0;mix-blend-mode:screen;opacity:0;}" +
+    ".disco-beam{position:absolute;top:-5vh;width:46vw;height:110vh;margin-left:-23vw;" +
+      "transform-origin:50% 0;mix-blend-mode:screen;opacity:.5;" +
+      "background:linear-gradient(to bottom,var(--c),transparent 80%);" +
+      "clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);" +
+      "animation:disco-swing var(--d) ease-in-out infinite alternate;}" +
+    "@keyframes disco-swing{from{transform:rotate(calc(var(--a) * -1));}to{transform:rotate(var(--a));}}" +
+    "#disco-string{position:absolute;top:0;left:50%;width:2px;height:50px;margin-left:-1px;" +
+      "background:rgba(255,255,255,.6);}" +
+    "#disco-ball{position:absolute;top:50px;left:50%;width:72px;height:72px;margin-left:-36px;" +
+      "border-radius:50%;overflow:hidden;" +
+      "background:radial-gradient(circle at 35% 30%,#fff 0,#d8d8d8 25%,#7a7a7a 70%,#333 100%);" +
+      "box-shadow:0 0 30px 8px rgba(255,255,255,.5);}" +
+    "#disco-ball::before{content:'';position:absolute;top:0;right:0;bottom:0;left:0;" +
+      "background:repeating-linear-gradient(0deg,rgba(0,0,0,.45) 0 2px,transparent 2px 9px)," +
+                 "repeating-linear-gradient(90deg,rgba(0,0,0,.45) 0 2px,transparent 2px 9px);" +
+      "animation:disco-spin 1.2s linear infinite;}" +
+    "@keyframes disco-spin{from{background-position:0 0,0 0;}to{background-position:0 0,9px 0;}}" +
+    "#disco-banner{position:absolute;left:50%;bottom:8vh;transform:translateX(-50%);" +
+      "font:700 22px/1 sans-serif;letter-spacing:.3em;color:#fff;white-space:nowrap;" +
+      "text-shadow:0 0 10px var(--bc,#f0f),0 0 22px var(--bc,#f0f);}" +
+    "#disco-stop{position:absolute;left:12px;bottom:12px;pointer-events:auto;}";
+  document.head.appendChild(styleEl);
+
+  // ---- helpers ------------------------------------------------------------
+  function disabledHere() {
+    try { if (localStorage.getItem("disco_enabled") === "0") return true; } catch (e) {}
+    try {
+      if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+    } catch (e) {}
+    return false;
+  }
+
+  // Best effort: reads the sender's rank from the userlist item (only used if MIN_RANK > 0).
+  function userRank(name) {
+    try {
+      var el = window.findUserlistItem && window.findUserlistItem(name);
+      if (el && el.length) {
+        var r = el.data("rank");
+        if (r != null) return +r;
+      }
+    } catch (e) {}
+    return -1;
+  }
+
+  // ---- visuals ------------------------------------------------------------
+  function buildOverlay(who) {
+    root = document.createElement("div");
+    root.id = "disco-root";
+
+    wash = document.createElement("div");
+    wash.id = "disco-wash";
+    root.appendChild(wash);
+
+    BEAMS.forEach(function (b) {
+      var d = document.createElement("div");
+      d.className = "disco-beam";
+      d.style.cssText = "left:" + b.x + "%;--c:" + b.c + ";--d:" + b.d + "s;--a:" + b.a + "deg;";
+      root.appendChild(d);
+    });
+
+    var str = document.createElement("div");
+    str.id = "disco-string";
+    root.appendChild(str);
+
+    var ball = document.createElement("div");
+    ball.id = "disco-ball";
+    root.appendChild(ball);
+
+    banner = document.createElement("div");
+    banner.id = "disco-banner";
+    banner.textContent = "\u2605 DISCO \u2605" + (who ? "  \u00b7  " + who : "");
+    root.appendChild(banner);
+
+    var btn = document.createElement("button");
+    btn.id = "disco-stop";
+    btn.type = "button";
+    btn.className = "btn btn-xs btn-default";
+    btn.textContent = "Stop disco";
+    btn.addEventListener("click", stop);
+    root.appendChild(btn);
+
+    document.body.appendChild(root);
+  }
+
+  function beat() {
+    if (!wash) return;
+    var c = COLORS[beatIdx++ % COLORS.length];
+    wash.style.background = c;
+    if (wash.animate) {
+      wash.animate([{ opacity: 0.35 }, { opacity: 0 }],
+                   { duration: 60000 / BPM * 0.85, easing: "ease-out" });
+    }
+    if (banner) banner.style.setProperty("--bc", c);
+  }
+
+  // ---- music: synthesized beat -------------------------------------------
+  function makeNoise(c) {
+    var buf = c.createBuffer(1, c.sampleRate, c.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  function env(g, t, a, d, peak) {
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
+  }
+
+  function kick(t) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.setValueAtTime(160, t);
+    o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+    env(g, t, 0.003, 0.22, 1);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + 0.3);
+  }
+
+  function noiseHit(t, type, freq, peak, dur) {
+    var s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noiseBuf;
+    f.type = type; f.frequency.value = freq;
+    env(g, t, 0.002, dur, peak);
+    s.connect(f); f.connect(g); g.connect(master);
+    s.start(t); s.stop(t + dur + 0.05);
+  }
+
+  function tone(t, freq, type, cutoff, peak, dur) {
+    var o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    f.type = "lowpass"; f.frequency.value = cutoff;
+    env(g, t, 0.005, dur, peak);
+    o.connect(f); f.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+
+  function playStep(s, t) {
+    var ch = PROG[Math.floor(s / 16) % PROG.length];
+    var i = s % 16;
+    if (i % 4 === 0) kick(t);                                   // four on the floor
+    if (i % 4 === 2) noiseHit(t, "highpass", 7000, 0.25, 0.05); // off-beat hi-hat
+    if (i === 4 || i === 12) noiseHit(t, "bandpass", 1500, 0.6, 0.14); // clap on 2 and 4
+    if (i % 2 === 0) {                                          // octave bass on the eighths
+      tone(t, ch.root * (((i / 2) % 2) ? 2 : 1), "sawtooth", 500, 0.5, 0.16);
+    }
+    if (i === 6 || i === 14) {                                  // chord stab
+      [0, ch.third, 7].forEach(function (n) {
+        tone(t, ch.root * 4 * Math.pow(2, n / 12), "sawtooth", 2200, 0.09, 0.12);
+      });
+    }
+  }
+
+  function schedule() {
+    if (!ctx) return;
+    var stepLen = 60 / BPM / 4; // one 16th note
+    while (nextTime < ctx.currentTime + 0.12) {
+      playStep(step, nextTime);
+      nextTime += stepLen;
+      step++;
+    }
+  }
+
+  function synthStart() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try {
+      ctx = new AC();
+      if (ctx.state === "suspended" && ctx.resume) ctx.resume().catch(function () {});
+      master = ctx.createGain();
+      master.gain.value = VOLUME;
+      master.connect(ctx.destination);
+      noiseBuf = makeNoise(ctx);
+      step = 0;
+      nextTime = ctx.currentTime + 0.05;
+      schedTimer = setInterval(schedule, 25);
+    } catch (e) { ctx = null; }
+  }
+
+  function startMusic() {
+    if (AUDIO_URL) {
+      try {
+        audioEl = new Audio(AUDIO_URL);
+        audioEl.volume = VOLUME;
+        var p = audioEl.play();
+        if (p && p.catch) p.catch(function () {}); // browser blocked autoplay: lights still run
+      } catch (e) {}
+      return;
+    }
+    synthStart();
+  }
+
+  function stopMusic() {
+    clearInterval(schedTimer);
+    schedTimer = 0;
+    if (audioEl) { try { audioEl.pause(); } catch (e) {} audioEl = null; }
+    if (ctx) {
+      var c = ctx, m = master;
+      ctx = null; master = null;
+      try { m.gain.setTargetAtTime(0, c.currentTime, 0.15); } catch (e) {}
+      setTimeout(function () { try { c.close(); } catch (e) {} }, 800);
+    }
+  }
+
+  // ---- start / stop -------------------------------------------------------
+  function start(who) {
+    if (running || disabledHere() || !document.body) return;
+    running = true;
+    beatIdx = 0;
+    buildOverlay(who);
+    startMusic();
+    beat();
+    beatTimer = setInterval(beat, 60000 / BPM);
+    endTimer = setTimeout(stop, DURATION);
+  }
+
+  function stop() {
+    if (!running) return;
+    running = false;
+    clearInterval(beatTimer);
+    clearTimeout(endTimer);
+    stopMusic();
+    if (root) {
+      var r = root;
+      root = null; wash = null; banner = null;
+      r.classList.add("out");
+      setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 700);
+    }
+  }
+
+  // ---- chat listener ------------------------------------------------------
+  function onChat(data) {
+    if (!data || typeof data.msg !== "string") return;
+    var now = Date.now();
+    if (now - loadedAt < STARTUP_GUARD) return;
+    if (data.time && now - data.time > MAX_AGE) return;
+    var m = data.msg.replace(/<[^>]*>/g, "").trim().match(/^!disco(?:\s+(off|stop))?$/i);
+    if (!m) return;
+    if (MIN_RANK > 0 && userRank(data.username) < MIN_RANK) return;
+    if (m[1]) stop(); else start(data.username);
+  }
+
+  if (window.socket && window.socket.on) window.socket.on("chatMsg", onChat);
+
+  window.DISCO_STOP = function () {
+    try { if (window.socket && window.socket.off) window.socket.off("chatMsg", onChat); } catch (e) {}
+    stop();
+    if (root && root.parentNode) root.parentNode.removeChild(root);
+    if (styleEl.parentNode) styleEl.parentNode.removeChild(styleEl);
+  };
+})();
