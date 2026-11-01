@@ -111,9 +111,7 @@
       closeBtn.style.cssText =
         "position:absolute;top:4px;right:4px;width:20px;height:20px;z-index:6;" +
         "border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font:16px/19px sans-serif;" +
-        "text-align:center;cursor:pointer;opacity:.55;display:none;";
-      closeBtn.addEventListener("mouseenter", function () { closeBtn.style.opacity = "1"; });
-      closeBtn.addEventListener("mouseleave", function () { closeBtn.style.opacity = ".55"; });
+        "text-align:center;cursor:pointer;display:none;";
       closeBtn.addEventListener("click", function (e) {
         e.stopPropagation();
         setEnabled(false);
