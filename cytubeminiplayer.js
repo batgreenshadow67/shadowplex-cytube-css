@@ -128,14 +128,14 @@
   function showRestore(on) {
     if (!restoreBtn) {
       if (!on || !document.body) return;
-      restoreBtn = document.createElement("div");
+      restoreBtn = document.createElement("button");
       restoreBtn.id = "mini-restore";
+      restoreBtn.type = "button";
+      restoreBtn.className = "btn btn-xs btn-default";
       restoreBtn.textContent = "▶ Show mini player";
       restoreBtn.style.cssText =
-        "position:fixed;top:var(--mini-top,60px);right:var(--mini-right,360px);z-index:1000;" +
-        "padding:4px 10px;font:12px sans-serif;cursor:pointer;border-radius:4px;" +
-        "background:rgba(0,15,8,.85);color:#39ff10;border:1px solid #0f3a1c;" +
-        "box-shadow:0 0 8px #39ff1033;display:none;";
+        "position:fixed;top:var(--mini-top,60px);right:var(--mini-right,360px);" +
+        "z-index:1000;display:none;";
       restoreBtn.addEventListener("click", function () { setEnabled(true); });
       document.body.appendChild(restoreBtn);
     }
