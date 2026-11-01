@@ -431,6 +431,7 @@
 })();
 
 // !disco: when someone types !disco in chat, every viewer who has this script gets
+// !disco: when someone types !disco in chat, every viewer who has this script gets
 // colored lights, swinging beams, a mirror ball and music for a short while.
 //   !disco        starts it (ignored while one is already running)
 //   !disco off    stops it for everyone (same permission as starting)
@@ -721,10 +722,25 @@
     if (m[1]) stop(); else start(data.username);
   }
 
-  if (window.socket && window.socket.on) window.socket.on("chatMsg", onChat);
+  // The socket may not exist yet when channel JS runs, so keep trying until it does.
+  var attached = null, attachTimer = 0;
+  function attach() {
+    var s = window.socket;
+    if (attached || !s || !s.on) return;
+    s.on("chatMsg", onChat);
+    attached = s;
+    clearInterval(attachTimer);
+    console.log("[disco] listening for !disco");
+  }
+  attach();
+  if (!attached) attachTimer = setInterval(attach, 500);
+
+  // Manual test from the console: DISCO_TEST() starts it, DISCO_TEST(false) stops it.
+  window.DISCO_TEST = function (on) { if (on === false) stop(); else start("test"); };
 
   window.DISCO_STOP = function () {
-    try { if (window.socket && window.socket.off) window.socket.off("chatMsg", onChat); } catch (e) {}
+    clearInterval(attachTimer);
+    try { if (attached && attached.off) attached.off("chatMsg", onChat); } catch (e) {}
     stop();
     if (root && root.parentNode) root.parentNode.removeChild(root);
     if (styleEl.parentNode) styleEl.parentNode.removeChild(styleEl);
