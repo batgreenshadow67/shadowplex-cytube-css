@@ -299,7 +299,7 @@
       btn.title = "Rainbow"; // shown as a Bootstrap hint like the other buttons
       var label = document.createElement("span");
       label.className = "rb-w";
-      ["R", "B"].forEach(function (ch, i) {
+      ["R", "b"].forEach(function (ch, i) {
         var c = document.createElement("span");
         c.className = "rb-c";
         c.style.setProperty("--i", i * 3);
