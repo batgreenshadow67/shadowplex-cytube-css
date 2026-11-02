@@ -297,7 +297,7 @@
       btn.title = "Rainbow text: wraps the selected text in [rb][/rb]";
       var label = document.createElement("span");
       label.className = "rb-w";
-      ["R", "B"].forEach(function (ch, i) {
+      ["R", "b"].forEach(function (ch, i) {
         var c = document.createElement("span");
         c.className = "rb-c";
         c.style.setProperty("--i", i * 3);
