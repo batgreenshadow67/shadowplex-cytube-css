@@ -176,3 +176,158 @@
     if (style.parentNode) style.parentNode.removeChild(style);
   };
 })();
+
+// Glowing chat text: wrap words in [gl]...[/gl] and they are shown with a soft, slowly
+// pulsing glow in the text's own color. The brackets disappear; emotes and links are left alone.
+//   hello [gl]glowing words[/gl] there   ->   only "glowing words" glows
+// A [gl] with no closing [/gl] glows the rest of the message.
+// Works together with [rb] rainbow text, e.g. [gl][rb]both[/rb][/gl] gives a rainbow glow
+// (load this script BEFORE the rainbow one so [gl] inside [rb] is read first).
+// A "Gl" button in the text effects bar wraps your selected text in [gl][/gl]
+// (or inserts an empty pair with the cursor between them).
+// Everyone with this script sees the effect (including older messages when they join);
+// people without it just see the plain text with the [gl] tags.
+// Opt out in one browser:  localStorage.setItem("glow_enabled", "0")
+(function () {
+  // If this script already ran (e.g. you re-saved the channel JS), shut the old copy down first.
+  if (window.GLOW_STOP) { try { window.GLOW_STOP(); } catch (e) {} }
+ 
+  var GLOW_COLOR = "";   // "" = glow in the text's own color; or a color like "#39ff10"
+  var PULSE = 2.4;       // seconds for one glow pulse
+  // Where the Gl button goes: the text effects bar. If it isn't found, it goes after the
+  // Emote List button or before the chat box.
+  var BUTTON_HOST = "#text-fx-menu";
+ 
+  var TOKEN = /(\[\/?gl\])/i;
+  var observer = null, timer = 0, btn = null, watching = false;
+ 
+  var sh = function (a, b, c) {
+    var col = "var(--gl-c,currentColor)";
+    return "0 0 " + a + "px " + col + ",0 0 " + b + "px " + col + ",0 0 " + c + "px " + col;
+  };
+  var style = document.createElement("style");
+  style.id = "glow-style";
+  style.textContent =
+    ".gl{" + (GLOW_COLOR ? "--gl-c:" + GLOW_COLOR + ";" : "") +
+      "text-shadow:" + sh(3, 8, 16) + ";" +
+      "animation:gl-pulse " + PULSE + "s ease-in-out infinite alternate;}" +
+    "@keyframes gl-pulse{" +
+      "from{text-shadow:" + sh(2, 5, 10) + ";}" +
+      "to{text-shadow:" + sh(4, 11, 22) + ";}}" +
+    "#glow-btn{font-weight:700;}" +
+    // Reduced motion: keep a steady glow, no pulsing.
+    "@media (prefers-reduced-motion:reduce){.gl{animation:none;}}";
+  document.head.appendChild(style);
+ 
+  function enabled() {
+    try { return localStorage.getItem("glow_enabled") !== "0"; } catch (e) {}
+    return true;
+  }
+ 
+  function convert(msgEl) {
+    if (!msgEl || msgEl.nodeType !== 1 || msgEl.getAttribute("data-gl")) return;
+    msgEl.setAttribute("data-gl", "1");
+    if (!enabled()) return;
+ 
+    // The message text is the last span in the line (after timestamp and username).
+    var span = msgEl.lastElementChild;
+    if (!span || span.tagName !== "SPAN" || span.classList.contains("timestamp")) return;
+    if (!/\[\/?gl\]/i.test(span.textContent)) return;
+ 
+    var texts = [];
+    var walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT, null);
+    while (walker.nextNode()) texts.push(walker.currentNode);
+ 
+    var inside = false;     // carries across text nodes, so emotes in the middle are fine
+    texts.forEach(function (t) {
+      if (!t.nodeValue || (t.parentNode.closest && t.parentNode.closest("a"))) return;
+      var frag = document.createDocumentFragment();
+      t.nodeValue.split(TOKEN).forEach(function (piece) {
+        if (!piece) return;
+        if (/^\[gl\]$/i.test(piece)) { inside = true; return; }
+        if (/^\[\/gl\]$/i.test(piece)) { inside = false; return; }
+        if (inside) {
+          var g = document.createElement("span");
+          g.className = "gl";
+          g.textContent = piece;
+          frag.appendChild(g);
+        } else {
+          frag.appendChild(document.createTextNode(piece));
+        }
+      });
+      t.parentNode.replaceChild(frag, t);
+    });
+  }
+ 
+  function watch() {
+    var buf = document.getElementById("messagebuffer");
+    if (!buf) return false;
+    Array.prototype.forEach.call(buf.children, convert); // messages already on screen
+    if (window.MutationObserver) {
+      observer = new MutationObserver(function (records) {
+        records.forEach(function (r) {
+          Array.prototype.forEach.call(r.addedNodes, convert);
+        });
+      });
+      observer.observe(buf, { childList: true });
+    }
+    console.log("[glow] watching chat");
+    return true;
+  }
+ 
+  // ---- Gl button ----------------------------------------------------------
+  function wrapSelection() {
+    var input = document.getElementById("chatline");
+    if (!input) return;
+    var open = "[gl]", close = "[/gl]";
+    var s = input.selectionStart, e = input.selectionEnd, v = input.value;
+    if (input.maxLength > 0 && v.length + open.length + close.length > input.maxLength) return;
+    input.value = v.slice(0, s) + open + v.slice(s, e) + close + v.slice(e);
+    var caret = (s === e) ? s + open.length : e + open.length + close.length;
+    input.focus();
+    input.setSelectionRange(caret, caret);
+  }
+ 
+  function ensureButton() {
+    var input = document.getElementById("chatline");
+    if (!input) return;
+    if (!btn) {
+      btn = document.createElement("button");
+      btn.id = "glow-btn";
+      btn.type = "button";
+      btn.className = "btn btn-sm btn-default";
+      btn.title = "Glowing text: wraps the selected text in [gl][/gl]";
+      var label = document.createElement("span");
+      label.className = "gl";
+      label.textContent = "Gl";
+      btn.appendChild(label);
+      btn.addEventListener("mousedown", function (e) { e.preventDefault(); }); // keep the selection
+      btn.addEventListener("click", wrapSelection);
+    }
+    var host = BUTTON_HOST && document.querySelector(BUTTON_HOST);
+    if (host) {
+      // Only checks the parent (not "last"), so it never fights other buttons for the end spot.
+      if (btn.parentNode !== host) host.appendChild(btn);
+      return;
+    }
+    if (document.body.contains(btn)) return;
+    var emote = document.getElementById("emotelistbtn");
+    if (emote && emote.parentNode) emote.parentNode.insertBefore(btn, emote.nextSibling);
+    else if (input.parentNode) input.parentNode.insertBefore(btn, input);
+  }
+ 
+  function tick() {
+    if (!watching) watching = watch();
+    ensureButton();
+  }
+  tick();
+  timer = setInterval(tick, 1000);
+ 
+  window.GLOW_STOP = function () {
+    clearInterval(timer);
+    if (observer) observer.disconnect();
+    if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+    if (style.parentNode) style.parentNode.removeChild(style);
+  };
+})();
+
