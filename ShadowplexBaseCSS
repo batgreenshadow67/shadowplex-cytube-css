@@ -1,0 +1,104 @@
+#put this in the css box of your cytube channel
+
+/* Script Settings > Themes: Shadowplex row, always styled */
+body .theme_option.custtheme_shadowplex {
+  background: linear-gradient(#04150c96 5%, #050f08d9 50%, #000000e8 51%, #000000cf 90%), #04150c !important;
+  border: 1px solid #0f3a1c !important;
+  box-shadow: inset 0 0 6px #1e4a2ab2, inset 0 0 2px #2f8a5240, 0 0 8px #39ff1033 !important;
+  color: #39ff10 !important;
+  text-shadow: 0 0 4px #39ff10, 0 0 8px #39ff10cc !important;
+  transition: box-shadow .2s ease;
+}
+body .theme_option.custtheme_shadowplex:hover {
+  box-shadow: inset 0 0 6px #1e4a2ab2, 0 0 12px #39ff1066 !important;
+}
+
+/* ===== Theme buttons: Jesus ===== */
+:is([id*="custtheme_jesus"], [class*="custtheme_jesus"], [title*="custtheme_jesus"],
+    [data-theme*="custtheme_jesus"], [data-id*="custtheme_jesus"],
+    [data-value*="custtheme_jesus"], [data-name*="custtheme_jesus"]) {
+  background-color: transparent !important;
+  background-image: linear-gradient(180deg, rgba(50, 42, 20, .9), rgba(25, 20, 10, .95)) !important;
+  border: 1px solid rgba(212, 175, 55, .35) !important;
+  border-radius: 3px !important;
+  color: #f0e6c8 !important;
+  text-shadow: 0 0 6px rgba(255, 215, 120, .5) !important;
+  box-shadow: 1px 1px 2px #000000a1 !important;
+}
+:is([id*="custtheme_jesus"], [class*="custtheme_jesus"], [title*="custtheme_jesus"],
+    [data-theme*="custtheme_jesus"], [data-id*="custtheme_jesus"],
+    [data-value*="custtheme_jesus"], [data-name*="custtheme_jesus"]):hover {
+  color: #ffeaa0 !important;
+  border-color: rgba(255, 215, 100, .5) !important;
+  text-shadow: 0 0 8px rgba(255, 215, 100, .8) !important;
+}
+
+/* ===== Theme buttons: The Theme With No Name ===== */
+:is([id*="custtheme_nonamed"], [class*="custtheme_nonamed"], [title*="custtheme_nonamed"],
+    [data-theme*="custtheme_nonamed"], [data-id*="custtheme_nonamed"],
+    [data-value*="custtheme_nonamed"], [data-name*="custtheme_nonamed"]) {
+  background: #000 !important;
+  background-image: none !important;
+  border: 1px solid #fff !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  font-family: "Libre Caslon Text", Georgia, "Times New Roman", serif !important;
+  text-transform: lowercase !important;
+}
+:is([id*="custtheme_nonamed"], [class*="custtheme_nonamed"], [title*="custtheme_nonamed"],
+    [data-theme*="custtheme_nonamed"], [data-id*="custtheme_nonamed"],
+    [data-value*="custtheme_nonamed"], [data-name*="custtheme_nonamed"]):hover {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+
+#wrap {
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: center bottom !important;
+  background-size: cover !important;
+}
+
+/* ===== Mini video player (works with miniplayer.js) ===== */
+body.mini-video #videowrap .embed-responsive {
+  position: fixed !important;
+  top: var(--mini-top, 60px);
+  right: var(--mini-right, 360px);
+  width: var(--mini-width, 320px) !important;
+  height: calc(var(--mini-width, 320px) * 0.5625) !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 0 !important;
+  z-index: 1000;
+  background: #000;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,.6);
+}
+
+/* close button: hidden until you hover the pinned player */
+#mini-close {
+  opacity: 0;
+  transition: opacity .15s;
+}
+body.mini-video #videowrap .embed-responsive:hover #mini-close {
+  opacity: .8 !important;
+}
+body.mini-video #videowrap .embed-responsive:hover #mini-close:hover {
+  opacity: 1 !important;
+}
+
+/* touch screens have no hover, so keep the close button visible there */
+@media (hover: none) {
+  #mini-close { opacity: .8; }
+}
+
+/* hide NND comments while the mini player is pinned */
+body.mini-video #videochatContainer,
+body.mini-video .videoText {
+  display: none !important;
+}
