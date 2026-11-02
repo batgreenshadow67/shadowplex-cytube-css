@@ -121,13 +121,14 @@
       btn.id = "glow-btn";
       btn.type = "button";
       btn.className = "btn btn-sm btn-default";
-      btn.title = "Glowing text: wraps the selected text in [gl][/gl]";
+      btn.title = "Glow"; // shown as a Bootstrap hint like the other buttons
       var label = document.createElement("span");
       label.className = "gl";
       label.textContent = "Gl";
       btn.appendChild(label);
       btn.addEventListener("mousedown", function (e) { e.preventDefault(); }); // keep the selection
       btn.addEventListener("click", wrapSelection);
+      try { if (window.jQuery && jQuery.fn.tooltip) jQuery(btn).tooltip({ container: "body" }); } catch (e) {}
     }
     var host = BUTTON_HOST && document.querySelector(BUTTON_HOST);
     if (host) {
@@ -151,6 +152,7 @@
   window.GLOW_STOP = function () {
     clearInterval(timer);
     if (observer) observer.disconnect();
+    try { if (btn && window.jQuery && jQuery.fn.tooltip) jQuery(btn).tooltip("destroy"); } catch (e) {}
     if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
     if (style.parentNode) style.parentNode.removeChild(style);
   };
@@ -294,10 +296,10 @@
       btn.id = "rainbow-btn";
       btn.type = "button";
       btn.className = "btn btn-sm btn-default";
-      btn.title = "Rainbow text: wraps the selected text in [rb][/rb]";
+      btn.title = "Rainbow"; // shown as a Bootstrap hint like the other buttons
       var label = document.createElement("span");
       label.className = "rb-w";
-      ["R", "b"].forEach(function (ch, i) {
+      ["R", "B"].forEach(function (ch, i) {
         var c = document.createElement("span");
         c.className = "rb-c";
         c.style.setProperty("--i", i * 3);
@@ -307,6 +309,7 @@
       btn.appendChild(label);
       btn.addEventListener("mousedown", function (e) { e.preventDefault(); }); // keep the selection
       btn.addEventListener("click", wrapSelection);
+      try { if (window.jQuery && jQuery.fn.tooltip) jQuery(btn).tooltip({ container: "body" }); } catch (e) {}
     }
     var host = BUTTON_HOST && document.querySelector(BUTTON_HOST);
     if (host) {
@@ -330,6 +333,7 @@
   window.RAINBOW_STOP = function () {
     clearInterval(timer);
     if (observer) observer.disconnect();
+    try { if (btn && window.jQuery && jQuery.fn.tooltip) jQuery(btn).tooltip("destroy"); } catch (e) {}
     if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
     if (style.parentNode) style.parentNode.removeChild(style);
   };
