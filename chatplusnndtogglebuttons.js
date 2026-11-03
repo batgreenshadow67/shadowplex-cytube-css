@@ -17,7 +17,7 @@ $(function () {
   }
 
   function place() {
-    var $nav = $("#navtogglebtn");
+    var $nav = $("#miniplayer-toggle").length ? $("#miniplayer-toggle") : $("#navtogglebtn");
     if (!$nav.length) return;
 
     // chat toggle just left of the topbar button
