@@ -1,3 +1,19 @@
+// ============================================================================
+// SETUP: add this to your cytube channel settings for this script to work
+// ============================================================================
+// Channel JS:
+//   $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/localtimestamps.js");
+//
+// Channel CSS: none.
+//
+// How to use: put Discord-style tags in the channel MOTD, with a 10-digit unix timestamp:
+//   <t:1794081600:t>   time          <t:1794081600:f>   date and time
+//   <t:1794081600:R>   relative ("in 6 days"); updates every 30 seconds
+// Flags: d D t T f F s S R (no flag = f). Times show in each viewer's own timezone.
+// Only the MOTD (#motd) is converted, not chat. Needs jQuery and the page's socket.
+// ============================================================================
+
+
 ////////////////////////////////Local TimeStamps
 
 (function() {
