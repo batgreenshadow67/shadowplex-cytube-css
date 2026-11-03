@@ -65,8 +65,12 @@ $(function () {
     applyChat(get(CHAT_KEY));
   }, 300);
 });
+
 $(function () {
-  var SPEED = 1; // 1 = match normal scrolling; try 0.7 for slower, 1.3 for faster
+  var SPEED = 1;    // scroll distance multiplier
+  var EASE = 0.15;  // smoothing: lower = floatier/slower to settle, higher = snappier (max 1)
+
+  var scroller = null, target = 0, raf = null;
 
   function findScroller() {
     var se = document.scrollingElement || document.documentElement;
@@ -86,6 +90,20 @@ $(function () {
     return best || se;
   }
 
+  function step() {
+    var cur = scroller.scrollTop;
+    var diff = target - cur;
+    if (Math.abs(diff) < 1) {
+      scroller.scrollTop = target;
+      raf = null;
+      return;
+    }
+    var move = diff * EASE;
+    if (Math.abs(move) < 1) move = diff > 0 ? 1 : -1; // avoid stalling on tiny steps
+    scroller.scrollTop = cur + move;
+    raf = requestAnimationFrame(step);
+  }
+
   window.addEventListener("wheel", function (e) {
     if (!document.body.classList.contains("chat-hidden")) return;
 
@@ -93,10 +111,17 @@ $(function () {
     if (e.clientX < window.innerWidth - w) return;
 
     var dy = e.deltaY;
-    if (e.deltaMode === 1) dy *= 19;                    // lines -> pixels
-    else if (e.deltaMode === 2) dy *= window.innerHeight; // pages -> pixels
+    if (e.deltaMode === 1) dy *= 19;
+    else if (e.deltaMode === 2) dy *= window.innerHeight;
 
-    findScroller().scrollTop += dy * SPEED;
+    if (!raf) {
+      scroller = findScroller();
+      target = scroller.scrollTop;
+    }
+    var max = scroller.scrollHeight - scroller.clientHeight;
+    target = Math.max(0, Math.min(max, target + dy * SPEED));
+
+    if (!raf) raf = requestAnimationFrame(step);
     e.preventDefault();
   }, { passive: false, capture: true });
 });
