@@ -51,6 +51,23 @@
   // If this script already ran (e.g. you re-saved the channel JS), shut the old copy down first.
   if (window.MINIPLAYER_STOP) { try { window.MINIPLAYER_STOP(); } catch (e) {} }
 
+  injectCSS("miniplayer-style", [
+    "body.mini-video #videowrap .embed-responsive {",
+    "  position: fixed !important; top: var(--mini-top, 60px); right: var(--mini-right, 360px);",
+    "  width: var(--mini-width, 320px) !important;",
+    "  height: calc(var(--mini-width, 320px) * 0.5625) !important;",
+    "  min-height: 0 !important; max-height: none !important; padding: 0 !important;",
+    "  z-index: 1000; background: #000; border: 0; border-radius: 0; overflow: hidden;",
+    "  box-shadow: 0 4px 14px rgba(0,0,0,.6); }",
+    "#mini-close { opacity: 0; transition: opacity .15s; }",
+    "body.mini-video #videowrap .embed-responsive:hover #mini-close { opacity: .8 !important; }",
+    "body.mini-video #videowrap .embed-responsive:hover #mini-close:hover { opacity: 1 !important; }",
+    "@media (hover: none) { #mini-close { opacity: .8; } }",
+    "body.mini-video #videochatContainer, body.mini-video .videoText { display: none !important; }",
+    ".tooltip { pointer-events: none !important; }",
+    "#miniplayer-toggle:not(.active) { opacity: 0.45; }"
+  ].join("\n"));
+  
   var DEFAULT_WIDTH = 320; // px, starting width of the small player
   var MIN_WIDTH = 200;     // px, smallest it can be dragged to
   var GAP = 10;            // px, space from the navbar/top, the chat and the window edges
@@ -76,6 +93,15 @@
 
   function q(s) { return document.querySelector(s); }
   function clamp01(v) { return Math.min(1, Math.max(0, v)); }
+
+  function injectCSS(id, css) {
+  var old = document.getElementById(id);
+  if (old) old.remove();              // re-running the script replaces the old copy
+  var s = document.createElement("style");
+  s.id = id;
+  s.textContent = css;
+  document.head.appendChild(s);
+  }
 
   // ---- saved settings -----------------------------------------------------
   function loadWidth() {
@@ -459,6 +485,7 @@
   var timer = setInterval(schedule, 400);
 
   window.MINIPLAYER_STOP = function () {
+    var st = document.getElementById("miniplayer-style"); if (st) st.remove();
     window.removeEventListener("scroll", schedule, { capture: true });
     window.removeEventListener("resize", onResize);
     document.removeEventListener("fullscreenchange", schedule);
