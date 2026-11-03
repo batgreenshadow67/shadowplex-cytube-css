@@ -1,6 +1,7 @@
 // Text effects for CyTube chat: [gl]glow[/gl] and [rb]rainbow[/rb], with Gl and RB buttons in the
 // text effects bar. The glow part comes first on purpose, so [gl] inside [rb] is read before the
 // rainbow splits the text into letters. Each part is self-contained and can be removed on its own.
+// Both also apply to NND scrolling comments (the .videoText copies).
 
 // Glowing chat text: wrap words in [gl]...[/gl] and they are shown with a soft, slowly
 // pulsing glow in the text's own color. The brackets disappear; emotes and links are left alone.
@@ -25,11 +26,14 @@
 
   var TOKEN = /(\[\/?gl\])/i;
   var observer = null, timer = 0, btn = null, watching = false;
+  var nndEl = null, nndObs = null;
 
   var sh = function (a, b, c) {
     var col = "var(--gl-c,currentColor)";
     return "0 0 " + a + "px " + col + ",0 0 " + b + "px " + col + ",0 0 " + c + "px " + col;
   };
+  // NND draws its comments with a black outline made of text-shadows; keep it when glowing.
+  var OUTLINE = "0 -0.063rem #000,0.063rem 0 #000,0 0.063rem #000,-0.063rem 0 #000";
   var style = document.createElement("style");
   style.id = "glow-style";
   style.textContent =
@@ -39,9 +43,13 @@
     "@keyframes gl-pulse{" +
       "from{text-shadow:" + sh(2, 5, 10) + ";}" +
       "to{text-shadow:" + sh(4, 11, 22) + ";}}" +
+    ".videoText .gl{text-shadow:" + OUTLINE + "," + sh(3, 8, 16) + ";animation-name:gl-pulse-nnd;}" +
+    "@keyframes gl-pulse-nnd{" +
+      "from{text-shadow:" + OUTLINE + "," + sh(2, 5, 10) + ";}" +
+      "to{text-shadow:" + OUTLINE + "," + sh(4, 11, 22) + ";}}" +
     "#glow-btn{font-weight:700;}" +
     // Reduced motion: keep a steady glow, no pulsing.
-    "@media (prefers-reduced-motion:reduce){.gl{animation:none;}}";
+    "@media (prefers-reduced-motion:reduce){.gl,.videoText .gl{animation:none;}}";
   document.head.appendChild(style);
 
   function enabled() {
@@ -49,23 +57,18 @@
     return true;
   }
 
-  function convert(msgEl) {
-    if (!msgEl || msgEl.nodeType !== 1 || msgEl.getAttribute("data-gl")) return;
-    msgEl.setAttribute("data-gl", "1");
-    if (!enabled()) return;
-
-    // The message text is the last span in the line (after timestamp and username).
-    var span = msgEl.lastElementChild;
-    if (!span || span.tagName !== "SPAN" || span.classList.contains("timestamp")) return;
-    if (!/\[\/?gl\]/i.test(span.textContent)) return;
+  // Does the work on one container: tags -> effect. Safe to run again (no tags left = no-op).
+  function applyTo(root) {
+    if (!/\[\/?gl\]/i.test(root.textContent)) return;
 
     var texts = [];
-    var walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT, null);
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
     while (walker.nextNode()) texts.push(walker.currentNode);
 
     var inside = false;     // carries across text nodes, so emotes in the middle are fine
     texts.forEach(function (t) {
-      if (!t.nodeValue || (t.parentNode.closest && t.parentNode.closest("a"))) return;
+      var par = t.parentNode;
+      if (!t.nodeValue || (par.closest && (par.closest("a") || par.closest(".username")))) return;
       var frag = document.createDocumentFragment();
       t.nodeValue.split(TOKEN).forEach(function (piece) {
         if (!piece) return;
@@ -80,8 +83,27 @@
           frag.appendChild(document.createTextNode(piece));
         }
       });
-      t.parentNode.replaceChild(frag, t);
+      par.replaceChild(frag, t);
     });
+  }
+
+  function convert(msgEl) {
+    if (!msgEl || msgEl.nodeType !== 1 || msgEl.getAttribute("data-gl")) return;
+    msgEl.setAttribute("data-gl", "1");
+    if (!enabled()) return;
+
+    // The message text is the last span in the line (after timestamp and username).
+    var span = msgEl.lastElementChild;
+    if (!span || span.tagName !== "SPAN" || span.classList.contains("timestamp")) return;
+    applyTo(span);
+  }
+
+  // NND scrolling comments (.videoText): same job on the copy NND makes of the message.
+  function convertNND(node) {
+    if (!node || !enabled()) return;
+    var el = node.nodeType === 1 ? node : node.parentNode;
+    var vt = el && el.closest && el.closest(".videoText");
+    if (vt) applyTo(vt);
   }
 
   function watch() {
@@ -98,6 +120,20 @@
     }
     console.log("[glow] watching chat");
     return true;
+  }
+
+  // ---- NND (scrolling comments) -------------------------------------------
+  function watchNND() {
+    var c = document.getElementById("videochatContainer");
+    if (!c || !window.MutationObserver) return;
+    nndObs = new MutationObserver(function (records) {
+      records.forEach(function (r) {
+        Array.prototype.forEach.call(r.addedNodes, function (n) { convertNND(n); });
+      });
+    });
+    nndObs.observe(c, { childList: true, subtree: true });
+    nndEl = c;
+    Array.prototype.forEach.call(c.querySelectorAll(".videoText"), convertNND);
   }
 
   // ---- Gl button ----------------------------------------------------------
@@ -144,6 +180,8 @@
 
   function tick() {
     if (!watching) watching = watch();
+    if (nndEl && !document.body.contains(nndEl)) { nndObs.disconnect(); nndEl = null; }
+    if (!nndEl) watchNND();
     ensureButton();
   }
   tick();
@@ -152,6 +190,7 @@
   window.GLOW_STOP = function () {
     clearInterval(timer);
     if (observer) observer.disconnect();
+    if (nndObs) nndObs.disconnect();
     try { if (btn && window.jQuery && jQuery.fn.tooltip) jQuery(btn).tooltip("destroy"); } catch (e) {}
     if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
     if (style.parentNode) style.parentNode.removeChild(style);
@@ -180,6 +219,7 @@
 
   var TOKEN = /(\[\/?rb\])/i;
   var observer = null, timer = 0, btn = null, watching = false;
+  var nndEl = null, nndObs = null;
 
   // Medium lightness colors so the text reads on both dark and light themes.
   var style = document.createElement("style");
@@ -229,24 +269,19 @@
     });
   }
 
-  function convert(msgEl) {
-    if (!msgEl || msgEl.nodeType !== 1 || msgEl.getAttribute("data-rb")) return;
-    msgEl.setAttribute("data-rb", "1");
-    if (!enabled()) return;
-
-    // The message text is the last span in the line (after timestamp and username).
-    var span = msgEl.lastElementChild;
-    if (!span || span.tagName !== "SPAN" || span.classList.contains("timestamp")) return;
-    if (!/\[\/?rb\]/i.test(span.textContent)) return;
+  // Does the work on one container: tags -> effect. Safe to run again (no tags left = no-op).
+  function applyTo(root) {
+    if (!/\[\/?rb\]/i.test(root.textContent)) return;
 
     var texts = [];
-    var walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT, null);
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
     while (walker.nextNode()) texts.push(walker.currentNode);
 
     var inside = false;     // carries across text nodes, so emotes in the middle are fine
     var n = { v: 0 };
     texts.forEach(function (t) {
-      if (!t.nodeValue || (t.parentNode.closest && t.parentNode.closest("a"))) return;
+      var par = t.parentNode;
+      if (!t.nodeValue || (par.closest && (par.closest("a") || par.closest(".username")))) return;
       var frag = document.createDocumentFragment();
       t.nodeValue.split(TOKEN).forEach(function (piece) {
         if (!piece) return;
@@ -255,8 +290,27 @@
         if (inside) paint(piece, n, frag);
         else frag.appendChild(document.createTextNode(piece));
       });
-      t.parentNode.replaceChild(frag, t);
+      par.replaceChild(frag, t);
     });
+  }
+
+  function convert(msgEl) {
+    if (!msgEl || msgEl.nodeType !== 1 || msgEl.getAttribute("data-rb")) return;
+    msgEl.setAttribute("data-rb", "1");
+    if (!enabled()) return;
+
+    // The message text is the last span in the line (after timestamp and username).
+    var span = msgEl.lastElementChild;
+    if (!span || span.tagName !== "SPAN" || span.classList.contains("timestamp")) return;
+    applyTo(span);
+  }
+
+  // NND scrolling comments (.videoText): same job on the copy NND makes of the message.
+  function convertNND(node) {
+    if (!node || !enabled()) return;
+    var el = node.nodeType === 1 ? node : node.parentNode;
+    var vt = el && el.closest && el.closest(".videoText");
+    if (vt) applyTo(vt);
   }
 
   function watch() {
@@ -273,6 +327,20 @@
     }
     console.log("[rainbow] watching chat");
     return true;
+  }
+
+  // ---- NND (scrolling comments) -------------------------------------------
+  function watchNND() {
+    var c = document.getElementById("videochatContainer");
+    if (!c || !window.MutationObserver) return;
+    nndObs = new MutationObserver(function (records) {
+      records.forEach(function (r) {
+        Array.prototype.forEach.call(r.addedNodes, function (n) { convertNND(n); });
+      });
+    });
+    nndObs.observe(c, { childList: true, subtree: true });
+    nndEl = c;
+    Array.prototype.forEach.call(c.querySelectorAll(".videoText"), convertNND);
   }
 
   // ---- RB button ----------------------------------------------------------
@@ -299,7 +367,7 @@
       btn.title = "Rainbow"; // shown as a Bootstrap hint like the other buttons
       var label = document.createElement("span");
       label.className = "rb-w";
-      ["R", "b"].forEach(function (ch, i) {
+      ["R", "B"].forEach(function (ch, i) {
         var c = document.createElement("span");
         c.className = "rb-c";
         c.style.setProperty("--i", i * 3);
@@ -325,6 +393,8 @@
 
   function tick() {
     if (!watching) watching = watch();
+    if (nndEl && !document.body.contains(nndEl)) { nndObs.disconnect(); nndEl = null; }
+    if (!nndEl) watchNND();
     ensureButton();
   }
   tick();
@@ -333,6 +403,7 @@
   window.RAINBOW_STOP = function () {
     clearInterval(timer);
     if (observer) observer.disconnect();
+    if (nndObs) nndObs.disconnect();
     try { if (btn && window.jQuery && jQuery.fn.tooltip) jQuery(btn).tooltip("destroy"); } catch (e) {}
     if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
     if (style.parentNode) style.parentNode.removeChild(style);
