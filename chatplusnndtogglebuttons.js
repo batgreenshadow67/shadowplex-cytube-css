@@ -1,3 +1,42 @@
+// ============================================================================
+// SETUP: add these to your cytube channel settings for this script to work
+// ============================================================================
+// Channel JS:
+//   $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/chatplusnndtogglebuttons.js");
+//
+// Channel CSS:
+//   .tooltip { pointer-events: none !important; }          /* hover hints must never block clicks */
+//   #nnd-btn { font-weight: bold; font-size: 11px; }
+//   #nnd-btn.off { opacity: 0.45; }
+//
+//   body.chat-hidden #chatwrap {                          /* chat hidden: stays in place, invisible */
+//     position: fixed !important;
+//     top: 0 !important;
+//     right: 0 !important;
+//     height: 100vh !important;
+//     width: var(--chat-w, 400px) !important;
+//     pointer-events: none !important;
+//     z-index: 1000;
+//   }
+//   body.chat-hidden #chatwrap, body.chat-hidden #chatwrap * { visibility: hidden !important; }
+//   body.chat-hidden #chat-buttons-right, body.chat-hidden #chat-buttons-right * {
+//     visibility: visible !important;                     /* keep the footer buttons usable */
+//     pointer-events: auto !important;
+//   }
+//   body.chat-hidden #videowrap { width: 100% !important; max-width: 100% !important; float: none !important; }
+//   body.nnd-hidden #videochatContainer, body.nnd-hidden .videoText,
+//   body.chat-hidden #videochatContainer, body.chat-hidden .videoText { display: none !important; }
+//   body.chat-hidden, body.chat-hidden #wrap { margin-right: 0 !important; padding-right: 0 !important; }
+//   body.chat-hidden .container-fluid { width: 100% !important; max-width: 100% !important; margin-right: 0 !important; }
+//
+// Needs on the page: the Nexus script (chat footer #chat-buttons-right and #navtogglebtn, plus
+// the NND container #videochatContainer), Font Awesome and jQuery tooltips.
+// Hiding the chat also hides NND. The NND button is on by default; both choices are
+// remembered per browser (localStorage keys "chatHidden" and "nndHidden").
+// Also adds scroll forwarding so the mouse wheel still scrolls over the empty area.
+// If cytubeminiplayer.js is loaded, the chat toggle sits next to its button in the footer.
+// ============================================================================
+
 $(function () {
   var CHAT_KEY = "chatHidden";
   var NND_KEY = "nndHidden";
