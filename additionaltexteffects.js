@@ -47,6 +47,9 @@
     "@keyframes gl-pulse-nnd{" +
       "from{text-shadow:" + OUTLINE + "," + sh(2, 5, 10) + ";}" +
       "to{text-shadow:" + OUTLINE + "," + sh(4, 11, 22) + ";}}" +
+    // Spoilers hide text by making it black on black. Anything colored inside one (effect letters,
+    // or color text) must inherit the spoiler's own color and shadow, or it shows through.
+    ".spoiler *{color:inherit !important;text-shadow:none !important;animation:none !important;}" +
     "#glow-btn{font-weight:700;}" +
     // Reduced motion: keep a steady glow, no pulsing.
     "@media (prefers-reduced-motion:reduce){.gl,.videoText .gl{animation:none;}}";
