@@ -65,3 +65,27 @@ $(function () {
     applyChat(get(CHAT_KEY));
   }, 300);
 });
+
+$(function () {
+  // find the element that actually scrolls the page content
+  function findScroller() {
+    var el = document.getElementById("videowrap") || document.body;
+    while (el && el !== document.documentElement) {
+      var oy = getComputedStyle(el).overflowY;
+      if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) return el;
+      el = el.parentElement;
+    }
+    return window;
+  }
+
+  // wheel over the empty strip (html/body) while the chat is hidden
+  document.addEventListener("wheel", function (e) {
+    if (!document.body.classList.contains("chat-hidden")) return;
+    var t = e.target;
+    if (t !== document.body && t !== document.documentElement) return;
+    var s = findScroller();
+    if (s === window) window.scrollBy(0, e.deltaY);
+    else s.scrollTop += e.deltaY;
+    e.preventDefault();
+  }, { passive: false });
+});
