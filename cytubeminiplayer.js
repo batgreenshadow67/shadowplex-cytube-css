@@ -1,3 +1,42 @@
+// ============================================================================
+// SETUP: add these to your cytube channel settings for this script to work
+// ============================================================================
+// Channel JS:
+//   $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/cytubeminiplayer.js");
+//
+// Channel CSS (this script only measures space and sets --mini-top / --mini-right /
+// --mini-width; the CSS below does the actual pinning and styling):
+//   body.mini-video #videowrap .embed-responsive {
+//     position: fixed !important;
+//     top: var(--mini-top, 60px);
+//     right: var(--mini-right, 360px);
+//     width: var(--mini-width, 320px) !important;
+//     height: calc(var(--mini-width, 320px) * 0.5625) !important;
+//     min-height: 0 !important;
+//     max-height: none !important;
+//     padding: 0 !important;
+//     z-index: 1000;
+//     background: #000;
+//     border: 0;
+//     border-radius: 0;
+//     overflow: hidden;
+//     box-shadow: 0 4px 14px rgba(0,0,0,.6);
+//   }
+//   #mini-close { opacity: 0; transition: opacity .15s; }
+//   body.mini-video #videowrap .embed-responsive:hover #mini-close { opacity: .8 !important; }
+//   body.mini-video #videowrap .embed-responsive:hover #mini-close:hover { opacity: 1 !important; }
+//   @media (hover: none) { #mini-close { opacity: .8; } }
+//   body.mini-video #videochatContainer, body.mini-video .videoText { display: none !important; }
+//   .tooltip { pointer-events: none !important; }
+//   #miniplayer-toggle:not(.active) { opacity: 0.45; }   /* dims the footer button while off */
+//
+// Needs on the page: the Nexus script (loaded from the channel JS) for the chat footer
+// (#chat-buttons-right, #navtogglebtn), plus jQuery tooltips and Font Awesome.
+// Works with chatplusnndtogglebuttons.js: while the chat is hidden (body.chat-hidden),
+// the mini player can move into the space the chat used.
+// ============================================================================
+
+
 // Mini video player: when the main video scrolls out of view, pin a small
 // copy of it on screen (default: top, just left of the chat, below the navbar if it is open).
 // The same player is reused (not reloaded); CSS in your channel CSS does the pinning.
