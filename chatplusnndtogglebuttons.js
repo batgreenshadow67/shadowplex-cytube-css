@@ -55,6 +55,30 @@ $(function () {
     }
   }
 
+  function injectCSS(id, css) {
+    var old = document.getElementById(id);
+    if (old) old.remove();              // re-running the script replaces the old copy
+    var s = document.createElement("style");
+    s.id = id;
+    s.textContent = css;
+    document.head.appendChild(s);
+  }
+  injectCSS("chattoggle-style", [
+    ".tooltip { pointer-events: none !important; }",
+    "#nnd-btn { font-weight: bold; font-size: 11px; }",
+    "#nnd-btn.off { opacity: 0.45; }",
+    "body.chat-hidden #chatwrap { position: fixed !important; top: 0 !important; right: 0 !important;",
+    "  height: 100vh !important; width: var(--chat-w, 400px) !important;",
+    "  pointer-events: none !important; z-index: 1000; }",
+    "body.chat-hidden #chatwrap, body.chat-hidden #chatwrap * { visibility: hidden !important; }",
+    "body.chat-hidden #chat-buttons-right, body.chat-hidden #chat-buttons-right * {",
+    "  visibility: visible !important; pointer-events: auto !important; }",
+    "body.chat-hidden #videowrap { width: 100% !important; max-width: 100% !important; float: none !important; }",
+    "body.nnd-hidden #videochatContainer, body.nnd-hidden .videoText,",
+    "body.chat-hidden #videochatContainer, body.chat-hidden .videoText { display: none !important; }",
+    "body.chat-hidden, body.chat-hidden #wrap { margin-right: 0 !important; padding-right: 0 !important; }",
+    "body.chat-hidden .container-fluid { width: 100% !important; max-width: 100% !important; margin-right: 0 !important; }"
+  ].join("\n"));
   function place() {
     var $nav = $("#miniplayer-toggle").length ? $("#miniplayer-toggle") : $("#navtogglebtn");
     if (!$nav.length) return;
