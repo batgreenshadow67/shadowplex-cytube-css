@@ -142,6 +142,7 @@
 
   // ---- geometry -----------------------------------------------------------
   function chatWidth() {
+    if (document.body.classList.contains("chat-hidden")) return 0;
     var chat = q("#chatwrap");
     return chat ? chat.offsetWidth : 0;
   }
