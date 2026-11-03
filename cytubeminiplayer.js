@@ -25,7 +25,7 @@
   var enabled = loadEnabled();
   var toggleBtn = null;  // on/off button in the chat footer, left of NND
   var closeBtn = null;   // small x on the pinned player
-  var mini = false;
+  var mini = false;var anchor = q("#navtogglebtn");
   var sentinel = null;   // invisible spacer that holds the video's place while it is pinned
   var handle = null;     // the resize corner
   var moveBar = null;    // the drag strip along the top
@@ -83,7 +83,7 @@
   // only moves the button when it is out of place.
   function ensureToggle() {
     var right = q("#chat-buttons-right");
-    var anchor = q("#nnd-btn") || q("#navtogglebtn");   // wait for NND; fall back to the topbar button
+    var anchor = q("#navtogglebtn");
     if (!right || !anchor) return;
 
     if (!toggleBtn) {
