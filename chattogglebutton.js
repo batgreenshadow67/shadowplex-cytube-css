@@ -1,5 +1,40 @@
 $(function () {
   var KEY = "chatHidden";
+  var $btn = $('<button id="chat-toggle" type="button"><i class="fa"></i></button>');
+
+  function place() {
+    var hidden = $("body").hasClass("chat-hidden");
+    var $nav = $("#navtogglebtn");
+
+    if (!hidden && $nav.length) {
+      $btn.attr("class", "btn btn-default btn-chat pull-right").insertBefore($nav);
+      // make sure it ends up visually LEFT of the topbar button
+      if ($btn[0].getBoundingClientRect().left > $nav[0].getBoundingClientRect().left) {
+        $btn.insertAfter($nav);
+      }
+    } else {
+      $btn.attr("class", "btn btn-default btn-sm floating").appendTo("body");
+    }
+  }
+
+  function apply(hidden) {
+    $("body").toggleClass("chat-hidden", hidden);
+    $btn.find("i").attr("class", "fa " + (hidden ? "fa-angle-double-left" : "fa-angle-double-right"));
+    $btn.attr("title", hidden ? "Show chat" : "Hide chat");
+    try { localStorage.setItem(KEY, hidden ? "1" : "0"); } catch (e) {}
+    place();
+    setTimeout(function () { $(window).trigger("resize"); }, 80);
+  }
+
+  var saved = false;
+  try { saved = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  setTimeout(function () { apply(saved); }, 300);
+
+  $btn.on("click", function () {
+    apply(!$("body").hasClass("chat-hidden"));
+  });
+});$(function () {
+  var KEY = "chatHidden";
 
   var $btn = $('<button id="chat-toggle" type="button"></button>');
 
