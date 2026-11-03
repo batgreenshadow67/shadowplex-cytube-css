@@ -178,7 +178,7 @@
       btn.title = "Glow"; // shown as a Bootstrap hint like the other buttons
       var label = document.createElement("span");
       label.className = "gl";
-      label.textContent = "Gl";
+      label.textContent = "Glw";
       btn.appendChild(label);
       btn.addEventListener("mousedown", function (e) { e.preventDefault(); }); // keep the selection
       btn.addEventListener("click", wrapSelection);
