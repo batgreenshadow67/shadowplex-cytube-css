@@ -1,3 +1,17 @@
+// ============================================================================
+// SETUP: add this to your cytube channel settings for this script to work
+// ============================================================================
+// Channel JS:
+//   $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/additionaltexteffects.js");
+//
+// Channel CSS: none. The script injects its own styles (#glow-style, #rainbow-style).
+//
+// Needs on the page: the Nexus script (loaded from the channel JS), which provides the text
+// effects bar #text-fx-menu where the Gl and R/B buttons go, plus #chatline, #messagebuffer
+// and the NND container #videochatContainer.
+// Only people who load this script see the effects; others see the plain [gl] / [rb] tags.
+// ============================================================================
+
 // Text effects for CyTube chat: [gl]glow[/gl] and [rb]rainbow[/rb], with Gl and RB buttons in the
 // text effects bar. The glow part comes first on purpose, so [gl] inside [rb] is read before the
 // rainbow splits the text into letters. Each part is self-contained and can be removed on its own.
