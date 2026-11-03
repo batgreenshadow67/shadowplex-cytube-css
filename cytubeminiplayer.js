@@ -4,8 +4,8 @@
 //   - Drag the top strip of the pinned video to move it anywhere between the navbar and the
 //     chat (double-click the strip to reset the position).
 //   - Drag the bottom-left corner to resize it (double-click the corner to reset the size).
-//   - Toggle the whole feature with the button in the video controls row, or the x on the
-//     mini player (a "Show mini player" pill appears when it is off and the video is out of view).
+//   - Toggle the whole feature with the button in the chat footer (left of NND), or turn it
+//     off with the x on the mini player.
 // Size, position and on/off are remembered in this browser. The position is stored as a
 // fraction of the free space, so it scales when the window is resized.
 (function () {
@@ -23,9 +23,8 @@
   var MINI_WIDTH = loadWidth();
   var pos = loadPos();     // fx / fy: 0..1 position within the free space
   var enabled = loadEnabled();
-  var toggleBtn = null;  // on/off button in the video controls row
+  var toggleBtn = null;  // on/off button in the chat footer, left of NND
   var closeBtn = null;   // small x on the pinned player
-  var restoreBtn = null; // "show mini player" pill, shown only while it is off
   var mini = false;
   var sentinel = null;   // invisible spacer that holds the video's place while it is pinned
   var handle = null;     // the resize corner
@@ -78,30 +77,62 @@
   }
 
   // ---- on/off controls ----------------------------------------------------
-  // Button next to the other video controls (reload, fullscreen, ...).
+  function hasTooltips() { return !!(window.jQuery && jQuery.fn.tooltip); }
+
+  // Button in the chat footer, directly left of NND. This runs every cycle, so it
+  // only moves the button when it is out of place.
   function ensureToggle() {
-    var bar = q("#videocontrols");
-    if (!bar) return;
+    var right = q("#chat-buttons-right");
+    var anchor = q("#nnd-btn") || q("#navtogglebtn");   // wait for NND; fall back to the topbar button
+    if (!right || !anchor) return;
+
     if (!toggleBtn) {
       toggleBtn = document.createElement("button");
       toggleBtn.id = "miniplayer-toggle";
       toggleBtn.type = "button";
-      toggleBtn.className = "btn btn-sm btn-default";
-      toggleBtn.innerHTML = '<span class="glyphicon glyphicon-resize-small"></span>';
-      toggleBtn.addEventListener("click", function () { setEnabled(!enabled); });
+      toggleBtn.className = "btn btn-default btn-chat pull-right";
+      toggleBtn.innerHTML = '<i class="fa fa-compress"></i>';
+      toggleBtn.addEventListener("click", function () {
+        if (hasTooltips()) jQuery(toggleBtn).tooltip("hide");
+        setEnabled(!enabled);
+      });
+      // same style of hover hint as the other footer buttons, created once
+      if (hasTooltips()) {
+        jQuery(toggleBtn).tooltip({
+          placement: "top", container: "body", trigger: "hover",
+          title: function () {
+            return enabled ? "Mini player: on (click to turn off)"
+                           : "Mini player: off (click to turn on)";
+          }
+        });
+      }
     }
-    if (toggleBtn.parentNode !== bar) bar.appendChild(toggleBtn);
+
+    // keep it directly left of the anchor; the footer buttons are floated right, so check visually
+    if (toggleBtn.parentNode !== right) right.insertBefore(toggleBtn, anchor);
+    var t = toggleBtn.getBoundingClientRect(), n = anchor.getBoundingClientRect();
+    if (t.width && n.width) {
+      var adjacent = toggleBtn.nextElementSibling === anchor || toggleBtn.previousElementSibling === anchor;
+      if (t.left > n.left || !adjacent) {
+        right.insertBefore(toggleBtn, anchor);
+        if (toggleBtn.getBoundingClientRect().left > anchor.getBoundingClientRect().left) {
+          right.insertBefore(toggleBtn, anchor.nextSibling);
+        }
+      }
+    }
     syncToggle();
   }
 
   function syncToggle() {
     if (!toggleBtn) return;
     toggleBtn.classList.toggle("active", enabled);
-    toggleBtn.title = enabled ? "Mini player: on (click to turn off)"
-                              : "Mini player: off (click to turn on)";
+    if (!hasTooltips()) {
+      toggleBtn.title = enabled ? "Mini player: on (click to turn off)"
+                                : "Mini player: off (click to turn on)";
+    }
   }
 
-  // Small x on the pinned player: turns the mini player off (turn it back on with the button).
+  // Small x on the pinned player: turns the mini player off (turn it back on with the footer button).
   function getClose(frame) {
     if (!closeBtn) {
       closeBtn = document.createElement("div");
@@ -119,25 +150,6 @@
     }
     if (closeBtn.parentNode !== frame) frame.appendChild(closeBtn);
     return closeBtn;
-  }
-
-  // Small pill shown (only while the mini player is off and the video is out of view)
-  // so there is always a way to turn it back on.
-  function showRestore(on) {
-    if (!restoreBtn) {
-      if (!on || !document.body) return;
-      restoreBtn = document.createElement("button");
-      restoreBtn.id = "mini-restore";
-      restoreBtn.type = "button";
-      restoreBtn.className = "btn btn-xs btn-default";
-      restoreBtn.textContent = "▶ Show mini player";
-      restoreBtn.style.cssText =
-        "position:fixed;top:var(--mini-top,60px);right:var(--mini-right,360px);" +
-        "z-index:1000;display:none;";
-      restoreBtn.addEventListener("click", function () { setEnabled(true); });
-      document.body.appendChild(restoreBtn);
-    }
-    restoreBtn.style.display = on ? "block" : "none";
   }
 
   // ---- geometry -----------------------------------------------------------
@@ -340,24 +352,17 @@
     ensureToggle();
     var wrap = q("#videowrap");
     var frame = wrap && wrap.querySelector(".embed-responsive");
-    if (!frame) { if (mini) disable(); showRestore(false); return; }
+    if (!frame) { if (mini) disable(); return; }
 
     place();
     attachObservers();
 
-    if (document.fullscreenElement) { if (mini) disable(); showRestore(false); return; }
+    if (document.fullscreenElement) { if (mini) disable(); return; }
+
+    // Mini player is off: nothing to pin.
+    if (!enabled) { if (mini) disable(); return; }
 
     var limit = navBottom() + 20;
-
-    if (!enabled) {
-      // Mini player is off: if the video is scrolled out of view, offer a small
-      // "show mini player" pill where the mini player would have been.
-      if (mini) disable();
-      var r0 = frame.getBoundingClientRect();
-      showRestore(r0.height > 0 && r0.bottom < limit);
-      return;
-    }
-    showRestore(false);
 
     if (!mini) {
       // Normal mode: watch the real video frame.
@@ -423,7 +428,8 @@
     observers.forEach(function (o) { o.disconnect(); });
     if (raf) cancelAnimationFrame(raf);
     disable();
-    [sentinel, handle, moveBar, closeBtn, toggleBtn, restoreBtn].forEach(function (el) {
+    if (toggleBtn && window.jQuery && jQuery.fn.tooltip) { try { jQuery(toggleBtn).tooltip("destroy"); } catch (e) {} }
+    [sentinel, handle, moveBar, closeBtn, toggleBtn].forEach(function (el) {
       if (el && el.parentNode) el.parentNode.removeChild(el);
     });
   };
