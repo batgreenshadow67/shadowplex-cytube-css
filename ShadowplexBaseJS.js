@@ -74,3 +74,4 @@ if (window.CLIENT.Nexus) {
 $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/localtimestamps.js");
 $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/cytubeminiplayer.js");
 $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/additionaltexteffects.js");
+$.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/chatplusnndtogglebuttons.js");
