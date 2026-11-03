@@ -65,13 +65,13 @@ $(function () {
     applyChat(get(CHAT_KEY));
   }, 300);
 });
-
 $(function () {
+  var SPEED = 1; // 1 = match normal scrolling; try 0.7 for slower, 1.3 for faster
+
   function findScroller() {
     var se = document.scrollingElement || document.documentElement;
     if (se.scrollHeight > se.clientHeight + 1) return se;
 
-    // otherwise pick the largest scrollable element outside the chat
     var best = null, bestH = 0;
     document.querySelectorAll("body *").forEach(function (el) {
       if (el.closest("#chatwrap")) return;
@@ -89,12 +89,14 @@ $(function () {
   window.addEventListener("wheel", function (e) {
     if (!document.body.classList.contains("chat-hidden")) return;
 
-    // only act over the area the chat used to occupy
     var w = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--chat-w")) || 400;
     if (e.clientX < window.innerWidth - w) return;
 
-    var dy = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY;
-    findScroller().scrollTop += dy;
+    var dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 19;                    // lines -> pixels
+    else if (e.deltaMode === 2) dy *= window.innerHeight; // pages -> pixels
+
+    findScroller().scrollTop += dy * SPEED;
     e.preventDefault();
   }, { passive: false, capture: true });
 });
