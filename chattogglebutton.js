@@ -67,25 +67,34 @@ $(function () {
 });
 
 $(function () {
-  // find the element that actually scrolls the page content
   function findScroller() {
-    var el = document.getElementById("videowrap") || document.body;
-    while (el && el !== document.documentElement) {
+    var se = document.scrollingElement || document.documentElement;
+    if (se.scrollHeight > se.clientHeight + 1) return se;
+
+    // otherwise pick the largest scrollable element outside the chat
+    var best = null, bestH = 0;
+    document.querySelectorAll("body *").forEach(function (el) {
+      if (el.closest("#chatwrap")) return;
       var oy = getComputedStyle(el).overflowY;
-      if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) return el;
-      el = el.parentElement;
-    }
-    return window;
+      if ((oy === "auto" || oy === "scroll") &&
+          el.scrollHeight > el.clientHeight + 1 &&
+          el.clientHeight > bestH) {
+        best = el;
+        bestH = el.clientHeight;
+      }
+    });
+    return best || se;
   }
 
-  // wheel over the empty strip (html/body) while the chat is hidden
-  document.addEventListener("wheel", function (e) {
+  window.addEventListener("wheel", function (e) {
     if (!document.body.classList.contains("chat-hidden")) return;
-    var t = e.target;
-    if (t !== document.body && t !== document.documentElement) return;
-    var s = findScroller();
-    if (s === window) window.scrollBy(0, e.deltaY);
-    else s.scrollTop += e.deltaY;
+
+    // only act over the area the chat used to occupy
+    var w = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--chat-w")) || 400;
+    if (e.clientX < window.innerWidth - w) return;
+
+    var dy = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY;
+    findScroller().scrollTop += dy;
     e.preventDefault();
-  }, { passive: false });
+  }, { passive: false, capture: true });
 });
