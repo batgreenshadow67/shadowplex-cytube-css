@@ -10,10 +10,16 @@
 // up to the next marker is the tab's content. Content before the first marker
 // stays above the tabs. Fewer than 2 markers = no tabs.
 //
-//   <div class="motd-tab">News</div>
-//   <p>Content...</p>
+// Optional end marker (default: .motd-end): everything AFTER it stays below
+// the tabs instead of falling into the last tab. The marker itself is hidden.
+//
+//   <h1>Title stays on top</h1>
 //   <div class="motd-tab">Schedule</div>
-//   <p>More content...</p>
+//   <p>Tab 1 content...</p>
+//   <div class="motd-tab">Other Stuff</div>
+//   <p>Tab 2 content...</p>
+//   <div class="motd-end">&nbsp;</div>
+//   <p>Footer stays at the bottom, outside the tabs</p>
 //
 // Optional overrides (put before the getScript line in channel JS).
 // `heading` is any CSS selector:
@@ -32,10 +38,12 @@
 
     var CFG = $.extend({
         heading: '.motd-tab',
+        end: '.motd-end',
         storageKey: 'shadowplex_motd_tab'
     }, window.MOTDTabsConfig || {});
 
     var CSS = [
+        '#motd .motd-end{display:none !important;}',
         '#motd .sp-tabs{margin-top:12px;}',
         '#motd .sp-tabbar{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid rgba(57,255,16,.4);margin-bottom:14px;}',
         '#motd .sp-tab{font:inherit;font-weight:bold;cursor:pointer;color:#39ff10;',
@@ -58,6 +66,12 @@
     function isHeading(n) {
         if (n.nodeType !== 1) return false;
         try { return $(n).is(CFG.heading); } catch (e) { return false; }
+    }
+
+    // A node ends the tab area if it matches the end selector.
+    function isEnd(n) {
+        if (n.nodeType !== 1 || !CFG.end) return false;
+        try { return $(n).is(CFG.end); } catch (e) { return false; }
     }
 
     function countHeadings(el) {
@@ -100,9 +114,11 @@
         var c = findContainer(m);
         if (!c) return;                                       // no markers: leave MOTD alone
 
-        var sections = [], cur = null;
+        var sections = [], cur = null, endNode = null;
         Array.prototype.slice.call(c.childNodes).forEach(function (n) {
-            if (isHeading(n)) { cur = { head: n, nodes: [] }; sections.push(cur); }
+            if (endNode) return;                              // after the end marker: left untouched
+            if (isEnd(n)) { endNode = n; cur = null; }
+            else if (isHeading(n)) { cur = { head: n, nodes: [] }; sections.push(cur); }
             else if (cur) cur.nodes.push(n);
         });
 
@@ -121,7 +137,8 @@
             s.nodes.forEach(function (n) { $p.append(n); });
         });
 
-        $(c).append($tabs);
+        if (endNode) $(endNode).before($tabs);                // footer stays below the tabs
+        else $(c).append($tabs);
         activate($tabs, start, false);
     }
 
