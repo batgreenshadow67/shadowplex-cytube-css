@@ -11,7 +11,9 @@
 // stays above the tabs. Fewer than 2 markers = no tabs.
 //
 // Optional end marker (default: .motd-end): everything AFTER it stays below
-// the tabs instead of falling into the last tab. The marker itself is hidden.
+// the tabs instead of falling into the last tab. The marker itself is drawn as
+// a divider line (same colour as the tab bar line). All colours follow the
+// theme's text colour, nothing is hard-coded.
 //
 //   <h1>Title stays on top</h1>
 //   <div class="motd-tab">Schedule</div>
@@ -43,17 +45,26 @@
     }, window.MOTDTabsConfig || {});
 
     var CSS = [
-        '#motd .motd-end{display:none !important;}',
-        '#motd .sp-tabs{margin-top:12px;}',
-        '#motd .sp-tabbar{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid rgba(57,255,16,.4);margin-bottom:14px;}',
-        '#motd .sp-tab{font:inherit;font-weight:bold;cursor:pointer;color:#39ff10;',
-        '  background:rgba(4,21,12,.65);border:1px solid rgba(57,255,16,.25);border-bottom:none;',
-        '  border-radius:4px 4px 0 0;padding:6px 16px;margin-bottom:-1px;',
-        '  text-shadow:0 0 4px rgba(57,255,16,.7);transition:background .15s,box-shadow .15s;}',
-        '#motd .sp-tab:hover{background:rgba(57,255,16,.14);}',
-        '#motd .sp-tab.active{background:rgba(57,255,16,.2);border-color:rgba(57,255,16,.6);',
-        '  box-shadow:0 0 8px rgba(57,255,16,.35);color:#eaffe4;}',
-        '#motd .sp-tab:focus-visible{outline:2px solid #39ff10;outline-offset:2px;}',
+        // Theme-agnostic: everything derives from the surrounding text colour
+        // (currentColor), so it follows whatever theme the channel uses.
+        // Each color-mix() line has a plain fallback line before it.
+        '#motd .motd-end{display:block;height:0;overflow:hidden;font-size:0;line-height:0;padding:0;',
+        '  margin:14px 0;border:0;border-top:1px solid currentColor;opacity:.4;clear:both;}',
+        '#motd .sp-tabs{margin-top:12px;clear:both;}',
+        '#motd .sp-tabbar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;',
+        '  border-bottom:1px solid rgba(128,128,128,.5);',
+        '  border-bottom:1px solid color-mix(in srgb,currentColor 40%,transparent);}',
+        '#motd .sp-tab{font:inherit;font-weight:bold;cursor:pointer;color:inherit;opacity:.75;',
+        '  background:rgba(128,128,128,.1);background:color-mix(in srgb,currentColor 6%,transparent);',
+        '  border:1px solid rgba(128,128,128,.35);border:1px solid color-mix(in srgb,currentColor 25%,transparent);',
+        '  border-bottom:none;border-radius:4px 4px 0 0;padding:6px 16px;margin-bottom:-1px;',
+        '  transition:background .15s,opacity .15s;}',
+        '#motd .sp-tab:hover{opacity:1;',
+        '  background:rgba(128,128,128,.2);background:color-mix(in srgb,currentColor 14%,transparent);}',
+        '#motd .sp-tab.active{opacity:1;',
+        '  background:rgba(128,128,128,.28);background:color-mix(in srgb,currentColor 20%,transparent);',
+        '  border-color:rgba(128,128,128,.7);border-color:color-mix(in srgb,currentColor 60%,transparent);}',
+        '#motd .sp-tab:focus-visible{outline:2px solid currentColor;outline-offset:2px;}',
         '#motd .sp-panel[hidden]{display:none !important;}',
         '#motd .sp-panel-title{display:none !important;}',
         '#motd .sp-panel::after{content:"";display:table;clear:both;}'
