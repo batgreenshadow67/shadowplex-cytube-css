@@ -5,12 +5,21 @@
 //   $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/motdtabs.js");
 // Channel CSS: none (styles are injected by this script).
 //
-// MOTD convention: every <h2> starts a tab. The h2 text is the tab label and
-// everything up to the next <h2> is the tab's content. Content before the
-// first <h2> stays above the tabs. Fewer than 2 <h2>s = no tabs.
+// MOTD convention: every element matching the `heading` selector starts a tab
+// (default: <div class="motd-tab">). Its text is the tab label and everything
+// up to the next marker is the tab's content. Content before the first marker
+// stays above the tabs. Fewer than 2 markers = no tabs.
 //
-// Optional overrides (put before the getScript line in channel JS):
-//   window.MOTDTabsConfig = { heading: "h2", storageKey: "shadowplex_motd_tab" };
+//   <div class="motd-tab">News</div>
+//   <p>Content...</p>
+//   <div class="motd-tab">Schedule</div>
+//   <p>More content...</p>
+//
+// Optional overrides (put before the getScript line in channel JS).
+// `heading` is any CSS selector:
+//   window.MOTDTabsConfig = { heading: ".motd-tab", storageKey: "shadowplex_motd_tab" };
+//   window.MOTDTabsConfig = { heading: "h2, .motd-tab" };   // accept both
+//   window.MOTDTabsConfig = { heading: "tab" };             // literal <tab> tag (CyTube may strip it)
 // ============================================================================
 
 (function () {
@@ -22,7 +31,7 @@
     }
 
     var CFG = $.extend({
-        heading: 'h2',
+        heading: '.motd-tab',
         storageKey: 'shadowplex_motd_tab'
     }, window.MOTDTabsConfig || {});
 
@@ -38,15 +47,17 @@
         '  box-shadow:0 0 8px rgba(57,255,16,.35);color:#eaffe4;}',
         '#motd .sp-tab:focus-visible{outline:2px solid #39ff10;outline-offset:2px;}',
         '#motd .sp-panel[hidden]{display:none !important;}',
-        '#motd .sp-panel-title{display:none;}',
+        '#motd .sp-panel-title{display:none !important;}',
         '#motd .sp-panel::after{content:"";display:table;clear:both;}'
     ].join('\n');
 
     var observer = null;
     var timer = null;
 
+    // A node starts a tab if it is an element matching the heading selector.
     function isHeading(n) {
-        return n.nodeType === 1 && n.nodeName.toLowerCase() === CFG.heading.toLowerCase();
+        if (n.nodeType !== 1) return false;
+        try { return $(n).is(CFG.heading); } catch (e) { return false; }
     }
 
     function countHeadings(el) {
@@ -55,7 +66,7 @@
         return c;
     }
 
-    // Headings are normally direct children of #motd; also accept one wrapper element.
+    // Markers are normally direct children of #motd; also accept one wrapper element.
     function findContainer(m) {
         if (countHeadings(m) >= 2) return m;
         var kids = $(m).children();
