@@ -12,8 +12,12 @@
 //
 // Optional end marker (default: .motd-end): everything AFTER it stays below
 // the tabs instead of falling into the last tab. The marker itself is drawn as
-// a divider line (same colour as the tab bar line). All colours follow the
-// theme's text colour, nothing is hard-coded.
+// a divider line (same colour as the tab bar line).
+//
+// Colours: nothing is hard-coded. The tabs and the divider use the MOTD's own
+// accent colour, picked up automatically from the first coloured text (or, failing
+// that, the first link) in #motd. If the MOTD has none, they use the text colour.
+// Override with the `accent` option: 'auto' (default), 'text', or any CSS colour.
 //
 //   <h1>Title stays on top</h1>
 //   <div class="motd-tab">Schedule</div>
@@ -24,10 +28,12 @@
 //   <p>Footer stays at the bottom, outside the tabs</p>
 //
 // Optional overrides (put before the getScript line in channel JS).
-// `heading` is any CSS selector:
+// `heading` and `end` are CSS selectors:
 //   window.MOTDTabsConfig = { heading: ".motd-tab", storageKey: "shadowplex_motd_tab" };
 //   window.MOTDTabsConfig = { heading: "h2, .motd-tab" };   // accept both
 //   window.MOTDTabsConfig = { heading: "tab" };             // literal <tab> tag (CyTube may strip it)
+//   window.MOTDTabsConfig = { accent: "text" };             // use the plain text colour
+//   window.MOTDTabsConfig = { accent: "#39ff10" };          // force a specific colour
 // ============================================================================
 
 (function () {
@@ -41,30 +47,33 @@
     var CFG = $.extend({
         heading: '.motd-tab',
         end: '.motd-end',
+        accent: 'auto',
         storageKey: 'shadowplex_motd_tab'
     }, window.MOTDTabsConfig || {});
 
     var CSS = [
-        // Theme-agnostic: everything derives from the surrounding text colour
-        // (currentColor), so it follows whatever theme the channel uses.
+        // Accent colour = --sp-accent, set on #motd by build() from the MOTD's own
+        // colours. Without it everything falls back to the text colour.
         // Each color-mix() line has a plain fallback line before it.
         '#motd .motd-end{display:block;height:0;overflow:hidden;font-size:0;line-height:0;padding:0;',
-        '  margin:14px 0;border:0;border-top:1px solid currentColor;opacity:.4;clear:both;}',
+        '  margin:14px 0;border:0;border-top:1px solid var(--sp-accent,currentColor);opacity:.4;clear:both;}',
         '#motd .sp-tabs{margin-top:12px;clear:both;}',
         '#motd .sp-tabbar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;',
         '  border-bottom:1px solid rgba(128,128,128,.5);',
-        '  border-bottom:1px solid color-mix(in srgb,currentColor 40%,transparent);}',
-        '#motd .sp-tab{font:inherit;font-weight:bold;cursor:pointer;color:inherit;opacity:.75;',
-        '  background:rgba(128,128,128,.1);background:color-mix(in srgb,currentColor 6%,transparent);',
-        '  border:1px solid rgba(128,128,128,.35);border:1px solid color-mix(in srgb,currentColor 25%,transparent);',
+        '  border-bottom:1px solid color-mix(in srgb,var(--sp-accent,currentColor) 40%,transparent);}',
+        '#motd .sp-tab{font:inherit;font-weight:bold;cursor:pointer;color:var(--sp-accent,inherit);',
+        '  background:rgba(128,128,128,.1);background:color-mix(in srgb,var(--sp-accent,currentColor) 8%,transparent);',
+        '  border:1px solid rgba(128,128,128,.35);border:1px solid color-mix(in srgb,var(--sp-accent,currentColor) 25%,transparent);',
         '  border-bottom:none;border-radius:4px 4px 0 0;padding:6px 16px;margin-bottom:-1px;',
-        '  transition:background .15s,opacity .15s;}',
-        '#motd .sp-tab:hover{opacity:1;',
-        '  background:rgba(128,128,128,.2);background:color-mix(in srgb,currentColor 14%,transparent);}',
-        '#motd .sp-tab.active{opacity:1;',
-        '  background:rgba(128,128,128,.28);background:color-mix(in srgb,currentColor 20%,transparent);',
-        '  border-color:rgba(128,128,128,.7);border-color:color-mix(in srgb,currentColor 60%,transparent);}',
-        '#motd .sp-tab:focus-visible{outline:2px solid currentColor;outline-offset:2px;}',
+        '  text-shadow:0 0 4px color-mix(in srgb,var(--sp-accent,currentColor) 70%,transparent);',
+        '  transition:background .15s,box-shadow .15s;}',
+        '#motd .sp-tab:hover{',
+        '  background:rgba(128,128,128,.2);background:color-mix(in srgb,var(--sp-accent,currentColor) 16%,transparent);}',
+        '#motd .sp-tab.active{color:inherit;',
+        '  background:rgba(128,128,128,.28);background:color-mix(in srgb,var(--sp-accent,currentColor) 22%,transparent);',
+        '  border-color:rgba(128,128,128,.7);border-color:color-mix(in srgb,var(--sp-accent,currentColor) 60%,transparent);',
+        '  box-shadow:0 0 8px color-mix(in srgb,var(--sp-accent,currentColor) 35%,transparent);}',
+        '#motd .sp-tab:focus-visible{outline:2px solid var(--sp-accent,currentColor);outline-offset:2px;}',
         '#motd .sp-panel[hidden]{display:none !important;}',
         '#motd .sp-panel-title{display:none !important;}',
         '#motd .sp-panel::after{content:"";display:table;clear:both;}'
@@ -99,6 +108,24 @@
         return null;
     }
 
+    // Accent colour: taken from the MOTD itself so tabs match its look on any theme.
+    function detectAccent(m) {
+        var a = CFG.accent;
+        if (a && a !== 'auto') return a === 'text' ? null : a;
+        var base = getComputedStyle(m).color, found = null;
+        $(m).find('[style*="color"], font[color]').each(function () {
+            var col = getComputedStyle(this).color;
+            if (col && col !== base) { found = col; return false; }
+        });
+        if (!found) {
+            $(m).find('a').each(function () {
+                var col = getComputedStyle(this).color;
+                if (col && col !== base) { found = col; return false; }
+            });
+        }
+        return found;
+    }
+
     function storeKey() {
         return CFG.storageKey + '_' + (window.CHANNEL && window.CHANNEL.name ? window.CHANNEL.name : '');
     }
@@ -124,6 +151,10 @@
         if (!m || m.querySelector('.sp-tabs')) return;      // missing or already built
         var c = findContainer(m);
         if (!c) return;                                       // no markers: leave MOTD alone
+
+        var accent = detectAccent(m);
+        if (accent) m.style.setProperty('--sp-accent', accent);
+        else m.style.removeProperty('--sp-accent');
 
         var sections = [], cur = null, endNode = null;
         Array.prototype.slice.call(c.childNodes).forEach(function (n) {
@@ -167,6 +198,8 @@
         clearTimeout(timer);
         try { if (window.socket && socket.removeListener) socket.removeListener('setMotd', onSetMotd); } catch (e) {}
         $('#sp-motd-tabs-css').remove();
+        var m = document.getElementById('motd');
+        if (m) m.style.removeProperty('--sp-accent');
     }
 
     function init() {
