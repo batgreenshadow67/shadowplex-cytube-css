@@ -13,6 +13,7 @@
 // shown again, which restores your normal NND setting. The NND button is on by default; the
 // chat state and your normal NND setting are remembered per browser (localStorage keys
 // "chatHidden" and "nndHidden").
+// While the chat is hidden, the footer buttons are invisible until you hover over them.
 // NND comments are hidden with visibility (not display:none), so a comment that is
 // mid-animation keeps running while hidden and cleans itself up instead of freezing on screen.
 // Also adds scroll forwarding so the mouse wheel still scrolls over the empty area.
@@ -25,6 +26,9 @@ $(function () {
   var NND_KEY = "nndHidden";
   // While the chat is hidden, NND starts off; this is true if the user turned it back on.
   var nndOnWhileChatOff = false;
+  // How visible the footer buttons are while the chat is hidden and the mouse is NOT over them.
+  // 0 = fully hidden; try 0.15 for a faint hint of where they are.
+  var HIDDEN_BUTTONS_OPACITY = 0;
 
   var $chatBtn = $('<button id="chat-toggle" type="button"><i class="fa"></i></button>');
   var $nndBtn = $('<button id="nnd-btn" type="button">NND</button>');
@@ -58,6 +62,13 @@ $(function () {
     "body.chat-hidden #chatwrap, body.chat-hidden #chatwrap * { visibility: hidden !important; }",
     "body.chat-hidden #chat-buttons-right, body.chat-hidden #chat-buttons-right * {",
     "  visibility: visible !important; pointer-events: auto !important; }",
+    // while the chat is hidden the footer buttons fade out so they don't cover the video,
+    // and fade back in when the mouse is over them (small delay on the way out, so moving
+    // between buttons doesn't flicker). Touch screens have no hover, so they stay visible there.
+    "body.chat-hidden #chat-buttons-right { opacity: " + HIDDEN_BUTTONS_OPACITY + "; transition: opacity .2s ease .3s; }",
+    "body.chat-hidden #chat-buttons-right:hover, body.chat-hidden #chat-buttons-right:focus-within {",
+    "  opacity: 1; transition-delay: 0s; }",
+    "@media (hover: none) { body.chat-hidden #chat-buttons-right { opacity: 1; } }",
     "body.chat-hidden #videowrap { width: 100% !important; max-width: 100% !important; float: none !important; }",
     // (hiding the chat sets body.nnd-hidden from the script, so NND can be turned back on while it is hidden)
     "body.nnd-hidden #videochatContainer, body.nnd-hidden .videoText { visibility: hidden !important; }",
