@@ -16,9 +16,11 @@
 // Mini video player: when the main video scrolls out of view, pin a small
 // copy of it on screen (default: top, just left of the chat, below the navbar if it is open).
 // The same player is reused (not reloaded); the injected CSS below does the pinning.
-//   - Drag the top strip of the pinned video to move it anywhere between the navbar and the
-//     chat (double-click the strip to reset the position).
-//   - Drag the bottom-left corner to resize it (double-click the corner to reset the size).
+//   - Hold the mouse anywhere on the pinned video and drag to move it between the navbar and the
+//     chat (double-click to reset the position). A strip along the bottom is left alone so the
+//     player's own controls still work (see CONTROLS_ZONE).
+//   - Drag any side or corner to resize it; it keeps its 16:9 shape (double-click an edge or
+//     corner to reset the size).
 //   - Toggle the whole feature with the button in the chat footer (left of the top bar toggle),
 //     or turn it off with the x on the mini player.
 // Size, position and on/off are remembered in this browser. The position is stored as a
@@ -49,6 +51,11 @@
   var DEFAULT_WIDTH = 320; // px, starting width of the small player
   var MIN_WIDTH = 200;     // px, smallest it can be dragged to
   var GAP = 10;            // px, space from the navbar/top, the chat and the window edges
+  var EDGE = 6;            // px, thickness of the resize strips along the four sides
+  var CORNER = 16;         // px, size of the resize spots in the four corners
+  // px along the bottom of the pinned video that you can NOT drag from, so the video player's
+  // own controls (play, volume, ...) stay clickable. Set to 0 to drag from everywhere.
+  var CONTROLS_ZONE = 44;
   var STORE_KEY = "miniplayer_width";
   var POS_KEY = "miniplayer_pos";
   var ENABLED_KEY = "miniplayer_enabled";
@@ -61,8 +68,8 @@
   var closeBtn = null;   // small x on the pinned player
   var mini = false;
   var sentinel = null;   // invisible spacer that holds the video's place while it is pinned
-  var handle = null;     // the resize corner
-  var moveBar = null;    // the drag strip along the top
+  var handles = [];      // the resize spots (4 sides, 4 corners)
+  var dragLayer = null;  // covers the pinned video so you can drag it from anywhere
   var dragging = null;   // resize drag state
   var moving = null;     // move drag state
   var raf = 0;
@@ -183,7 +190,7 @@
       closeBtn.title = "Turn off mini player";
       closeBtn.textContent = "×";
       closeBtn.style.cssText =
-        "position:absolute;top:4px;right:4px;width:20px;height:20px;z-index:6;" +
+        "position:absolute;top:4px;right:4px;width:20px;height:20px;z-index:7;" +
         "border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font:16px/19px sans-serif;" +
         "text-align:center;cursor:pointer;display:none;";
       closeBtn.addEventListener("click", function (e) {
@@ -270,79 +277,114 @@
     return sentinel;
   }
 
-  // ---- resize handle (bottom-left corner) ---------------------------------
-  // Resizing keeps the top-right corner fixed, like before.
-  function resizeTo(w, rightEdge, top) {
+  // ---- resizing (any side or corner) ---------------------------------------
+  // The video keeps its 16:9 shape. Dragging a corner keeps the opposite corner where it is.
+  // Dragging a side keeps the opposite side where it is, and the video grows or shrinks
+  // evenly along the other direction.
+  var DIRS = ["n", "s", "e", "w", "ne", "nw", "se", "sw"];
+  var CURSORS = { n: "ns-resize", s: "ns-resize", e: "ew-resize", w: "ew-resize",
+                  ne: "nesw-resize", sw: "nesw-resize", nw: "nwse-resize", se: "nwse-resize" };
+
+  // Sets the width to w, keeping the side(s) named in dir where they are.
+  // start = { left, top, w }: where the video was, and how wide, before the resize began.
+  function sizeTo(dir, start, w) {
+    var h0 = start.w * 9 / 16;
     MINI_WIDTH = clamp(w);
-    setPosPx(rightEdge - MINI_WIDTH, top);
+    var h = MINI_WIDTH * 9 / 16;
+    var left, top;
+    if (dir.indexOf("w") >= 0) left = start.left + start.w - MINI_WIDTH;   // right side stays
+    else if (dir.indexOf("e") >= 0) left = start.left;                      // left side stays
+    else left = start.left + (start.w - MINI_WIDTH) / 2;                    // stays centered
+    if (dir.indexOf("n") >= 0) top = start.top + h0 - h;                    // bottom stays
+    else if (dir.indexOf("s") >= 0) top = start.top;                        // top stays
+    else top = start.top + (h0 - h) / 2;                                    // stays centered
+    setPosPx(left, top);
     place();
   }
 
-  function getHandle(frame) {
-    if (!handle) {
-      handle = document.createElement("div");
-      handle.id = "mini-resize-handle";
-      handle.title = "Drag to resize (double-click to reset)";
-      handle.style.cssText =
-        "position:absolute;left:0;bottom:0;width:22px;height:22px;z-index:5;" +
-        "cursor:nesw-resize;touch-action:none;display:none;background:transparent;";
-
-      handle.addEventListener("pointerdown", function (e) {
-        e.preventDefault();
-        var lt = currentLeftTop();
-        dragging = { x: e.clientX, y: e.clientY, w: MINI_WIDTH,
-                     right: lt.left + MINI_WIDTH, top: lt.top };
-        try { handle.setPointerCapture(e.pointerId); } catch (_) {}
-      });
-      handle.addEventListener("pointermove", function (e) {
-        if (!dragging) return;
-        var dx = dragging.x - e.clientX;               // dragging left = wider
-        var dy = (e.clientY - dragging.y) * 16 / 9;    // dragging down = wider
-        resizeTo(dragging.w + (Math.abs(dx) > Math.abs(dy) ? dx : dy), dragging.right, dragging.top);
-      });
-      var endDrag = function (e) {
-        if (!dragging) return;
-        dragging = null;
-        try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
-        saveWidth();
-        savePos();
-      };
-      handle.addEventListener("pointerup", endDrag);
-      handle.addEventListener("pointercancel", endDrag);
-      handle.addEventListener("dblclick", function () {
-        var lt = currentLeftTop();
-        resizeTo(DEFAULT_WIDTH, lt.left + MINI_WIDTH, lt.top);
-        saveWidth();
-        savePos();
-      });
-    }
-    if (handle.parentNode !== frame) frame.appendChild(handle);
-    return handle;
+  // The width the mouse position asks for. A corner follows whichever direction moved more.
+  function dragWidth(dir, d, e) {
+    var dx = e.clientX - d.x, dy = e.clientY - d.y;
+    var wx = null, wy = null;
+    if (dir.indexOf("e") >= 0) wx = d.w + dx;
+    else if (dir.indexOf("w") >= 0) wx = d.w - dx;
+    if (dir.indexOf("s") >= 0) wy = d.w + dy * 16 / 9;
+    else if (dir.indexOf("n") >= 0) wy = d.w - dy * 16 / 9;
+    if (wx === null) return wy;
+    if (wy === null) return wx;
+    return Math.abs(wx - d.w) > Math.abs(wy - d.w) ? wx : wy;
   }
 
-  // ---- move strip (top edge) ----------------------------------------------
-  function getMoveBar(frame) {
-    if (!moveBar) {
-      moveBar = document.createElement("div");
-      moveBar.id = "mini-move-bar";
-      moveBar.title = "Drag to move (double-click to reset position)";
-      moveBar.style.cssText =
-        "position:absolute;top:0;left:0;right:28px;height:18px;z-index:5;" +
-        "cursor:move;touch-action:none;display:none;background:transparent;";
-      moveBar.addEventListener("mouseenter", function () {
-        moveBar.style.background = "linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,0))";
-      });
-      moveBar.addEventListener("mouseleave", function () {
-        if (!moving) moveBar.style.background = "transparent";
-      });
+  function getHandles(frame) {
+    if (!handles.length) {
+      DIRS.forEach(function (dir) {
+        var h = document.createElement("div");
+        h.id = "mini-resize-" + dir;
+        var css = "position:absolute;z-index:6;touch-action:none;display:none;" +
+                  "background:transparent;cursor:" + CURSORS[dir] + ";";
+        if (dir.length === 2) {                       // corner
+          css += (dir.charAt(0) === "n" ? "top:0;" : "bottom:0;") +
+                 (dir.charAt(1) === "w" ? "left:0;" : "right:0;") +
+                 "width:" + CORNER + "px;height:" + CORNER + "px;";
+        } else if (dir === "n" || dir === "s") {      // top / bottom side
+          css += (dir === "n" ? "top:0;" : "bottom:0;") +
+                 "left:" + CORNER + "px;right:" + CORNER + "px;height:" + EDGE + "px;";
+        } else {                                      // left / right side
+          css += (dir === "w" ? "left:0;" : "right:0;") +
+                 "top:" + CORNER + "px;bottom:" + CORNER + "px;width:" + EDGE + "px;";
+        }
+        h.style.cssText = css;
 
-      moveBar.addEventListener("pointerdown", function (e) {
+        h.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          var lt = currentLeftTop();
+          dragging = { dir: dir, x: e.clientX, y: e.clientY, w: MINI_WIDTH, left: lt.left, top: lt.top };
+          try { h.setPointerCapture(e.pointerId); } catch (_) {}
+        });
+        h.addEventListener("pointermove", function (e) {
+          if (!dragging || dragging.dir !== dir) return;
+          sizeTo(dir, dragging, dragWidth(dir, dragging, e));
+        });
+        var endDrag = function (e) {
+          if (!dragging) return;
+          dragging = null;
+          try { h.releasePointerCapture(e.pointerId); } catch (_) {}
+          saveWidth();
+          savePos();
+        };
+        h.addEventListener("pointerup", endDrag);
+        h.addEventListener("pointercancel", endDrag);
+        h.addEventListener("dblclick", function () {
+          var lt = currentLeftTop();
+          sizeTo(dir, { left: lt.left, top: lt.top, w: MINI_WIDTH }, DEFAULT_WIDTH);
+          saveWidth();
+          savePos();
+        });
+        handles.push(h);
+      });
+    }
+    handles.forEach(function (h) { if (h.parentNode !== frame) frame.appendChild(h); });
+    return handles;
+  }
+
+  // ---- move (hold the mouse anywhere on the video) ------------------------
+  // A transparent layer over the video, because the video itself would swallow the mouse.
+  // The bottom CONTROLS_ZONE px are left out so the player's own controls still work.
+  function getDragLayer(frame) {
+    if (!dragLayer) {
+      dragLayer = document.createElement("div");
+      dragLayer.id = "mini-drag-layer";
+      dragLayer.style.cssText =
+        "position:absolute;top:0;left:0;right:0;bottom:" + CONTROLS_ZONE + "px;z-index:5;" +
+        "cursor:move;touch-action:none;display:none;background:transparent;";
+
+      dragLayer.addEventListener("pointerdown", function (e) {
         e.preventDefault();
         var lt = currentLeftTop();
         moving = { x: e.clientX, y: e.clientY, left: lt.left, top: lt.top };
-        try { moveBar.setPointerCapture(e.pointerId); } catch (_) {}
+        try { dragLayer.setPointerCapture(e.pointerId); } catch (_) {}
       });
-      moveBar.addEventListener("pointermove", function (e) {
+      dragLayer.addEventListener("pointermove", function (e) {
         if (!moving) return;
         setPosPx(moving.left + (e.clientX - moving.x), moving.top + (e.clientY - moving.y));
         place();
@@ -350,21 +392,20 @@
       var endMove = function (e) {
         if (!moving) return;
         moving = null;
-        try { moveBar.releasePointerCapture(e.pointerId); } catch (_) {}
-        moveBar.style.background = "transparent";
+        try { dragLayer.releasePointerCapture(e.pointerId); } catch (_) {}
         savePos();
       };
-      moveBar.addEventListener("pointerup", endMove);
-      moveBar.addEventListener("pointercancel", endMove);
-      moveBar.addEventListener("dblclick", function () {
+      dragLayer.addEventListener("pointerup", endMove);
+      dragLayer.addEventListener("pointercancel", endMove);
+      dragLayer.addEventListener("dblclick", function () {
         pos.fx = DEFAULT_POS.fx;
         pos.fy = DEFAULT_POS.fy;
         place();
         savePos();
       });
     }
-    if (moveBar.parentNode !== frame) frame.appendChild(moveBar);
-    return moveBar;
+    if (dragLayer.parentNode !== frame) frame.appendChild(dragLayer);
+    return dragLayer;
   }
 
   // ---- pinned / unpinned --------------------------------------------------
@@ -372,8 +413,8 @@
     var s = getSentinel(frame);
     s.style.height = height + "px";
     s.style.display = "block";
-    getHandle(frame).style.display = "block";
-    getMoveBar(frame).style.display = "block";
+    getHandles(frame).forEach(function (h) { h.style.display = "block"; });
+    getDragLayer(frame).style.display = "block";
     getClose(frame).style.display = "block";
     mini = true;
     document.body.classList.add("mini-video");
@@ -385,8 +426,8 @@
     moving = null;
     document.body.classList.remove("mini-video");
     if (sentinel) sentinel.style.display = "none";
-    if (handle) handle.style.display = "none";
-    if (moveBar) moveBar.style.display = "none";
+    handles.forEach(function (h) { h.style.display = "none"; });
+    if (dragLayer) dragLayer.style.display = "none";
     if (closeBtn) closeBtn.style.display = "none";
   }
 
@@ -415,7 +456,7 @@
       // Pinned mode: the frame is fixed now, so watch the spacer that holds its place.
       var rs = sentinel.getBoundingClientRect();
       if (rs.bottom >= limit) disable();
-      else { getHandle(frame); getMoveBar(frame); getClose(frame); }   // keep attached if the page rebuilt the frame
+      else { getHandles(frame); getDragLayer(frame); getClose(frame); }   // keep attached if the page rebuilt the frame
     }
   }
 
@@ -473,7 +514,7 @@
     if (raf) cancelAnimationFrame(raf);
     disable();
     if (toggleBtn && window.jQuery && jQuery.fn.tooltip) { try { jQuery(toggleBtn).tooltip("destroy"); } catch (e) {} }
-    [sentinel, handle, moveBar, closeBtn, toggleBtn].forEach(function (el) {
+    [sentinel, dragLayer, closeBtn, toggleBtn].concat(handles).forEach(function (el) {
       if (el && el.parentNode) el.parentNode.removeChild(el);
     });
   };
