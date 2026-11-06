@@ -12,13 +12,8 @@
 //
 // Optional end marker (default: .motd-end): everything AFTER it stays below
 // the tabs instead of falling into the last tab. The marker itself is drawn as
-// a divider line (same colour as the tab bar line).
-//
-// Colours: nothing is hard-coded and no text colours are read. Everything comes
-// from the MOTD's own border (colour, width, style), found on #motd or the nearest
-// box around it: the tab bar line, tab outlines, footer divider, and the tints and
-// glow on hover/active tabs. Tab text uses the normal text colour. If the MOTD has
-// no border, the text colour is used instead.
+// a divider line (same colour as the tab bar line). All colours follow the
+// theme's text colour, nothing is hard-coded.
 //
 //   <h1>Title stays on top</h1>
 //   <div class="motd-tab">Schedule</div>
@@ -29,11 +24,10 @@
 //   <p>Footer stays at the bottom, outside the tabs</p>
 //
 // Optional overrides (put before the getScript line in channel JS).
-// `heading` and `end` are CSS selectors:
+// `heading` is any CSS selector:
 //   window.MOTDTabsConfig = { heading: ".motd-tab", storageKey: "shadowplex_motd_tab" };
 //   window.MOTDTabsConfig = { heading: "h2, .motd-tab" };   // accept both
 //   window.MOTDTabsConfig = { heading: "tab" };             // literal <tab> tag (CyTube may strip it)
-//   window.MOTDTabsConfig = { border: "#39ff10" };          // force a specific line colour
 // ============================================================================
 
 (function () {
@@ -47,37 +41,30 @@
     var CFG = $.extend({
         heading: '.motd-tab',
         end: '.motd-end',
-        border: 'auto',                 // 'auto' = copy the MOTD border, or any CSS colour
         storageKey: 'shadowplex_motd_tab'
     }, window.MOTDTabsConfig || {});
 
-    // Everything is drawn from the MOTD's own border: --sp-line (colour),
-    // --sp-line-width, --sp-line-style, set on #motd by build(). Without a border
-    // the text colour is used.
-    var LINE_COLOR = 'var(--sp-line,color-mix(in srgb,currentColor 40%,transparent))';
-    var LINE = 'var(--sp-line-width,1px) var(--sp-line-style,solid) ' + LINE_COLOR;
-    var TINT = 'var(--sp-line,currentColor)';
-
     var CSS = [
-        // Each color-mix() line has a plain fallback line before it for browsers
-        // without color-mix().
+        // Theme-agnostic: everything derives from the surrounding text colour
+        // (currentColor), so it follows whatever theme the channel uses.
+        // Each color-mix() line has a plain fallback line before it.
         '#motd .motd-end{display:block;height:0;overflow:hidden;font-size:0;line-height:0;padding:0;',
-        '  margin:14px 0;border:0;clear:both;',
-        '  border-top:1px solid rgba(128,128,128,.5);border-top:' + LINE + ';}',
+        '  margin:14px 0;border:0;border-top:1px solid currentColor;opacity:.4;clear:both;}',
         '#motd .sp-tabs{margin-top:12px;clear:both;}',
         '#motd .sp-tabbar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;',
-        '  border-bottom:1px solid rgba(128,128,128,.5);border-bottom:' + LINE + ';}',
-        '#motd .sp-tab{font:inherit;font-weight:bold;cursor:pointer;color:inherit;',
-        '  background:rgba(128,128,128,.1);background:color-mix(in srgb,' + TINT + ' 8%,transparent);',
-        '  border:1px solid rgba(128,128,128,.35);border:' + LINE + ';',
+        '  border-bottom:1px solid rgba(128,128,128,.5);',
+        '  border-bottom:1px solid color-mix(in srgb,currentColor 40%,transparent);}',
+        '#motd .sp-tab{font:inherit;font-weight:bold;cursor:pointer;color:inherit;opacity:.75;',
+        '  background:rgba(128,128,128,.1);background:color-mix(in srgb,currentColor 6%,transparent);',
+        '  border:1px solid rgba(128,128,128,.35);border:1px solid color-mix(in srgb,currentColor 25%,transparent);',
         '  border-bottom:none;border-radius:4px 4px 0 0;padding:6px 16px;margin-bottom:-1px;',
-        '  transition:background .15s,box-shadow .15s;}',
-        '#motd .sp-tab:hover{',
-        '  background:rgba(128,128,128,.2);background:color-mix(in srgb,' + TINT + ' 16%,transparent);}',
-        '#motd .sp-tab.active{',
-        '  background:rgba(128,128,128,.28);background:color-mix(in srgb,' + TINT + ' 22%,transparent);',
-        '  box-shadow:0 0 8px color-mix(in srgb,' + TINT + ' 35%,transparent);}',
-        '#motd .sp-tab:focus-visible{outline:2px solid ' + TINT + ';outline-offset:2px;}',
+        '  transition:background .15s,opacity .15s;}',
+        '#motd .sp-tab:hover{opacity:1;',
+        '  background:rgba(128,128,128,.2);background:color-mix(in srgb,currentColor 14%,transparent);}',
+        '#motd .sp-tab.active{opacity:1;',
+        '  background:rgba(128,128,128,.28);background:color-mix(in srgb,currentColor 20%,transparent);',
+        '  border-color:rgba(128,128,128,.7);border-color:color-mix(in srgb,currentColor 60%,transparent);}',
+        '#motd .sp-tab:focus-visible{outline:2px solid currentColor;outline-offset:2px;}',
         '#motd .sp-panel[hidden]{display:none !important;}',
         '#motd .sp-panel-title{display:none !important;}',
         '#motd .sp-panel::after{content:"";display:table;clear:both;}'
@@ -112,27 +99,6 @@
         return null;
     }
 
-    // Border to copy: the MOTD's own, from #motd or the nearest box around it.
-    // Returns {color, width, style} or null (then the text colour is used).
-    function detectBorder(m) {
-        var b = CFG.border;
-        if (b && b !== 'auto') return { color: b };
-        var sides = ['Top', 'Left', 'Right', 'Bottom'];
-        for (var el = m, i = 0; el && el.nodeType === 1 && el !== document.body && i < 6; el = el.parentElement, i++) {
-            var cs = getComputedStyle(el);
-            for (var j = 0; j < sides.length; j++) {
-                var w = parseFloat(cs['border' + sides[j] + 'Width']);
-                var st = cs['border' + sides[j] + 'Style'];
-                var col = cs['border' + sides[j] + 'Color'];
-                if (w > 0 && st !== 'none' && st !== 'hidden' && col && col !== 'transparent' &&
-                    !/,\s*0\)$/.test(col)) {
-                    return { color: col, width: cs['border' + sides[j] + 'Width'], style: st };
-                }
-            }
-        }
-        return null;
-    }
-
     function storeKey() {
         return CFG.storageKey + '_' + (window.CHANNEL && window.CHANNEL.name ? window.CHANNEL.name : '');
     }
@@ -158,14 +124,6 @@
         if (!m || m.querySelector('.sp-tabs')) return;      // missing or already built
         var c = findContainer(m);
         if (!c) return;                                       // no markers: leave MOTD alone
-
-        var line = detectBorder(m);
-        ['--sp-line', '--sp-line-width', '--sp-line-style'].forEach(function (k) { m.style.removeProperty(k); });
-        if (line) {
-            m.style.setProperty('--sp-line', line.color);
-            if (line.width) m.style.setProperty('--sp-line-width', line.width);
-            if (line.style) m.style.setProperty('--sp-line-style', line.style);
-        }
 
         var sections = [], cur = null, endNode = null;
         Array.prototype.slice.call(c.childNodes).forEach(function (n) {
@@ -209,8 +167,6 @@
         clearTimeout(timer);
         try { if (window.socket && socket.removeListener) socket.removeListener('setMotd', onSetMotd); } catch (e) {}
         $('#sp-motd-tabs-css').remove();
-        var m = document.getElementById('motd');
-        if (m) ['--sp-line', '--sp-line-width', '--sp-line-style'].forEach(function (k) { m.style.removeProperty(k); });
     }
 
     function init() {
