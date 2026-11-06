@@ -36,12 +36,17 @@ $(function () {
   function get(k) { try { return localStorage.getItem(k) === "1"; } catch (e) { return false; } }
   function set(k, v) { try { localStorage.setItem(k, v ? "1" : "0"); } catch (e) {} }
 
+  // Each hover hint is created once and only its text is changed afterwards. Destroying and
+  // re-creating it while it is showing (what this used to do) could leave a hint stuck on screen.
+  function initTip($b) {
+    if ($.fn.tooltip) $b.attr("title", "Toggle").tooltip({ placement: "top", container: "body", trigger: "hover" });
+  }
   function setTip($b, text) {
-    $b.attr("title", text);
-    if ($.fn.tooltip) {
-      $b.tooltip("destroy");
-      $b.tooltip({ title: text, placement: "top", container: "body" });
-    }
+    if ($.fn.tooltip) $b.attr("data-original-title", text).attr("title", "");
+    else $b.attr("title", text);
+  }
+  function hideTips() {
+    if ($.fn.tooltip) { $chatBtn.tooltip("hide"); $nndBtn.tooltip("hide"); }
   }
 
   function injectCSS(id, css) {
@@ -75,20 +80,24 @@ $(function () {
     "body.chat-hidden, body.chat-hidden #wrap { margin-right: 0 !important; padding-right: 0 !important; }",
     "body.chat-hidden .container-fluid { width: 100% !important; max-width: 100% !important; margin-right: 0 !important; }"
   ].join("\n"));
+  // Puts $btn directly left of $anchor, but only moves it if it is out of place. Moving a button
+  // that the mouse is over detaches it from the page, and its hover hint then never hides.
+  function ensureLeftOf($btn, $anchor) {
+    var b = $btn[0], a = $anchor[0];
+    $btn.addClass("btn btn-default btn-chat pull-right");
+    var adjacent = b.parentNode === a.parentNode &&
+                   (b.nextElementSibling === a || b.previousElementSibling === a);
+    if (adjacent && b.getBoundingClientRect().left <= a.getBoundingClientRect().left) return;
+    $btn.insertBefore($anchor);
+    if (b.getBoundingClientRect().left > a.getBoundingClientRect().left) $btn.insertAfter($anchor);
+  }
+
   function place() {
     var $nav = $("#miniplayer-toggle").length ? $("#miniplayer-toggle") : $("#navtogglebtn");
     if (!$nav.length) return;
 
-    // chat toggle just left of the topbar button
-    $chatBtn.attr("class", "btn btn-default btn-chat pull-right").insertBefore($nav);
-    if ($chatBtn[0].getBoundingClientRect().left > $nav[0].getBoundingClientRect().left) {
-      $chatBtn.insertAfter($nav);
-    }
-    // NND toggle just left of the chat toggle
-    $nndBtn.attr("class", "btn btn-default btn-chat pull-right").insertBefore($chatBtn);
-    if ($nndBtn[0].getBoundingClientRect().left > $chatBtn[0].getBoundingClientRect().left) {
-      $nndBtn.insertAfter($chatBtn);
-    }
+    ensureLeftOf($chatBtn, $nav);      // chat toggle just left of the mini player / top bar button
+    ensureLeftOf($nndBtn, $chatBtn);   // NND toggle just left of the chat toggle
 
     var chatOff = $("body").hasClass("chat-hidden");
     var nndOff = $("body").hasClass("nnd-hidden");
@@ -130,8 +139,10 @@ $(function () {
     syncNnd();
   }
 
-  $chatBtn.on("click", function () { applyChat(!$("body").hasClass("chat-hidden")); });
-  $nndBtn.on("click", toggleNnd);
+  $chatBtn.on("click", function () { hideTips(); applyChat(!$("body").hasClass("chat-hidden")); });
+  $nndBtn.on("click", function () { hideTips(); toggleNnd(); });
+  initTip($chatBtn);
+  initTip($nndBtn);
 
   setTimeout(function () { applyChat(get(CHAT_KEY)); }, 300);
 });
