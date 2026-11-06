@@ -8,8 +8,11 @@
 //
 // Needs on the page: the Nexus script (chat footer #chat-buttons-right and #navtogglebtn, plus
 // the NND container #videochatContainer), Font Awesome and jQuery tooltips.
-// Hiding the chat also hides NND. The NND button is on by default; both choices are
-// remembered per browser (localStorage keys "chatHidden" and "nndHidden").
+// Hiding the chat turns NND off too (the NND button shows its off position), but you can click
+// NND to turn it back on while the chat is hidden. That choice only lasts until the chat is
+// shown again, which restores your normal NND setting. The NND button is on by default; the
+// chat state and your normal NND setting are remembered per browser (localStorage keys
+// "chatHidden" and "nndHidden").
 // NND comments are hidden with visibility (not display:none), so a comment that is
 // mid-animation keeps running while hidden and cleans itself up instead of freezing on screen.
 // Also adds scroll forwarding so the mouse wheel still scrolls over the empty area.
@@ -20,6 +23,8 @@
 $(function () {
   var CHAT_KEY = "chatHidden";
   var NND_KEY = "nndHidden";
+  // While the chat is hidden, NND starts off; this is true if the user turned it back on.
+  var nndOnWhileChatOff = false;
 
   var $chatBtn = $('<button id="chat-toggle" type="button"><i class="fa"></i></button>');
   var $nndBtn = $('<button id="nnd-btn" type="button">NND</button>');
@@ -54,8 +59,8 @@ $(function () {
     "body.chat-hidden #chat-buttons-right, body.chat-hidden #chat-buttons-right * {",
     "  visibility: visible !important; pointer-events: auto !important; }",
     "body.chat-hidden #videowrap { width: 100% !important; max-width: 100% !important; float: none !important; }",
-    "body.nnd-hidden #videochatContainer, body.nnd-hidden .videoText,",
-    "body.chat-hidden #videochatContainer, body.chat-hidden .videoText { visibility: hidden !important; }",
+    // (hiding the chat sets body.nnd-hidden from the script, so NND can be turned back on while it is hidden)
+    "body.nnd-hidden #videochatContainer, body.nnd-hidden .videoText { visibility: hidden !important; }",
     "body.chat-hidden, body.chat-hidden #wrap { margin-right: 0 !important; padding-right: 0 !important; }",
     "body.chat-hidden .container-fluid { width: 100% !important; max-width: 100% !important; margin-right: 0 !important; }"
   ].join("\n"));
@@ -87,26 +92,37 @@ $(function () {
     if (hidden && chat && !$("body").hasClass("chat-hidden")) {
       document.documentElement.style.setProperty("--chat-w", chat.getBoundingClientRect().width + "px");
     }
+    if (hidden) nndOnWhileChatOff = false;   // every time the chat is hidden, NND starts off
     $("body").toggleClass("chat-hidden", hidden);
     $chatBtn.find("i").attr("class", "fa " + (hidden ? "fa-angle-double-left" : "fa-angle-double-right"));
     set(CHAT_KEY, hidden);
-    place();
+    syncNnd();
     setTimeout(function () { $(window).trigger("resize"); }, 80);
   }
 
-  function applyNnd(hidden) {
-    $("body").toggleClass("nnd-hidden", hidden);
-    set(NND_KEY, hidden);
+  // NND is shown or hidden according to the current mode:
+  //   chat visible: your saved NND setting
+  //   chat hidden:  off, unless you turned it back on since hiding the chat
+  function syncNnd() {
+    var chatOff = $("body").hasClass("chat-hidden");
+    var nndHidden = chatOff ? !nndOnWhileChatOff : get(NND_KEY);
+    $("body").toggleClass("nnd-hidden", nndHidden);
     place();
   }
 
-  $chatBtn.on("click", function () { applyChat(!$("body").hasClass("chat-hidden")); });
-  $nndBtn.on("click", function () { applyNnd(!$("body").hasClass("nnd-hidden")); });
+  function toggleNnd() {
+    if ($("body").hasClass("chat-hidden")) {
+      nndOnWhileChatOff = !nndOnWhileChatOff;   // temporary, not saved
+    } else {
+      set(NND_KEY, !get(NND_KEY));              // your normal setting, saved
+    }
+    syncNnd();
+  }
 
-  setTimeout(function () {
-    $("body").toggleClass("nnd-hidden", get(NND_KEY));
-    applyChat(get(CHAT_KEY));
-  }, 300);
+  $chatBtn.on("click", function () { applyChat(!$("body").hasClass("chat-hidden")); });
+  $nndBtn.on("click", toggleNnd);
+
+  setTimeout(function () { applyChat(get(CHAT_KEY)); }, 300);
 });
 
 $(function () {
