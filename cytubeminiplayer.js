@@ -1,34 +1,10 @@
 // ============================================================================
-// SETUP: add these to your cytube channel settings for this script to work
+// SETUP: add this to your cytube channel settings for this script to work
 // ============================================================================
 // Channel JS:
 //   $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/cytubeminiplayer.js");
 //
-// Channel CSS (this script only measures space and sets --mini-top / --mini-right /
-// --mini-width; the CSS below does the actual pinning and styling):
-//   body.mini-video #videowrap .embed-responsive {
-//     position: fixed !important;
-//     top: var(--mini-top, 60px);
-//     right: var(--mini-right, 360px);
-//     width: var(--mini-width, 320px) !important;
-//     height: calc(var(--mini-width, 320px) * 0.5625) !important;
-//     min-height: 0 !important;
-//     max-height: none !important;
-//     padding: 0 !important;
-//     z-index: 1000;
-//     background: #000;
-//     border: 0;
-//     border-radius: 0;
-//     overflow: hidden;
-//     box-shadow: 0 4px 14px rgba(0,0,0,.6);
-//   }
-//   #mini-close { opacity: 0; transition: opacity .15s; }
-//   body.mini-video #videowrap .embed-responsive:hover #mini-close { opacity: .8 !important; }
-//   body.mini-video #videowrap .embed-responsive:hover #mini-close:hover { opacity: 1 !important; }
-//   @media (hover: none) { #mini-close { opacity: .8; } }
-//   body.mini-video #videochatContainer, body.mini-video .videoText { display: none !important; }
-//   .tooltip { pointer-events: none !important; }
-//   #miniplayer-toggle:not(.active) { opacity: 0.45; }   /* dims the footer button while off */
+// Channel CSS: none. This script injects its own styles (#miniplayer-style).
 //
 // Needs on the page: the Nexus script (loaded from the channel JS) for the chat footer
 // (#chat-buttons-right, #navtogglebtn), plus jQuery tooltips and Font Awesome.
@@ -39,18 +15,20 @@
 
 // Mini video player: when the main video scrolls out of view, pin a small
 // copy of it on screen (default: top, just left of the chat, below the navbar if it is open).
-// The same player is reused (not reloaded); CSS in your channel CSS does the pinning.
+// The same player is reused (not reloaded); the injected CSS below does the pinning.
 //   - Drag the top strip of the pinned video to move it anywhere between the navbar and the
 //     chat (double-click the strip to reset the position).
 //   - Drag the bottom-left corner to resize it (double-click the corner to reset the size).
-//   - Toggle the whole feature with the button in the chat footer (left of NND), or turn it
-//     off with the x on the mini player.
+//   - Toggle the whole feature with the button in the chat footer (left of the top bar toggle),
+//     or turn it off with the x on the mini player.
 // Size, position and on/off are remembered in this browser. The position is stored as a
 // fraction of the free space, so it scales when the window is resized.
 (function () {
   // If this script already ran (e.g. you re-saved the channel JS), shut the old copy down first.
   if (window.MINIPLAYER_STOP) { try { window.MINIPLAYER_STOP(); } catch (e) {} }
 
+  // NND comments are hidden with visibility (not display:none) while pinned, so their
+  // animation keeps running and they finish and clean themselves up instead of freezing.
   injectCSS("miniplayer-style", [
     "body.mini-video #videowrap .embed-responsive {",
     "  position: fixed !important; top: var(--mini-top, 60px); right: var(--mini-right, 360px);",
@@ -63,11 +41,11 @@
     "body.mini-video #videowrap .embed-responsive:hover #mini-close { opacity: .8 !important; }",
     "body.mini-video #videowrap .embed-responsive:hover #mini-close:hover { opacity: 1 !important; }",
     "@media (hover: none) { #mini-close { opacity: .8; } }",
-    "body.mini-video #videochatContainer, body.mini-video .videoText { display: none !important; }",
+    "body.mini-video #videochatContainer, body.mini-video .videoText { visibility: hidden !important; }",
     ".tooltip { pointer-events: none !important; }",
     "#miniplayer-toggle:not(.active) { opacity: 0.45; }"
   ].join("\n"));
-  
+
   var DEFAULT_WIDTH = 320; // px, starting width of the small player
   var MIN_WIDTH = 200;     // px, smallest it can be dragged to
   var GAP = 10;            // px, space from the navbar/top, the chat and the window edges
@@ -79,9 +57,9 @@
   var MINI_WIDTH = loadWidth();
   var pos = loadPos();     // fx / fy: 0..1 position within the free space
   var enabled = loadEnabled();
-  var toggleBtn = null;  // on/off button in the chat footer, left of NND
+  var toggleBtn = null;  // on/off button in the chat footer, left of the top bar toggle
   var closeBtn = null;   // small x on the pinned player
-  var mini = false;var anchor = q("#navtogglebtn");
+  var mini = false;
   var sentinel = null;   // invisible spacer that holds the video's place while it is pinned
   var handle = null;     // the resize corner
   var moveBar = null;    // the drag strip along the top
@@ -95,12 +73,12 @@
   function clamp01(v) { return Math.min(1, Math.max(0, v)); }
 
   function injectCSS(id, css) {
-  var old = document.getElementById(id);
-  if (old) old.remove();              // re-running the script replaces the old copy
-  var s = document.createElement("style");
-  s.id = id;
-  s.textContent = css;
-  document.head.appendChild(s);
+    var old = document.getElementById(id);
+    if (old) old.remove();              // re-running the script replaces the old copy
+    var s = document.createElement("style");
+    s.id = id;
+    s.textContent = css;
+    document.head.appendChild(s);
   }
 
   // ---- saved settings -----------------------------------------------------
@@ -144,8 +122,8 @@
   // ---- on/off controls ----------------------------------------------------
   function hasTooltips() { return !!(window.jQuery && jQuery.fn.tooltip); }
 
-  // Button in the chat footer, directly left of NND. This runs every cycle, so it
-  // only moves the button when it is out of place.
+  // Button in the chat footer, directly left of the top bar toggle. This runs every cycle,
+  // so it only moves the button when it is out of place.
   function ensureToggle() {
     var right = q("#chat-buttons-right");
     var anchor = q("#navtogglebtn");
