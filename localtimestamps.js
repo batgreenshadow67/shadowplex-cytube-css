@@ -8,7 +8,7 @@
 //
 // How to use: put Discord-style tags in the channel MOTD, with a 10-digit unix timestamp:
 //   <t:1794081600:t>   time          <t:1794081600:f>   date and time
-//   <t:1794081600:R>   relative ("in 1 day 20 hrs"); updates every 30 seconds
+//   <t:1794081600:R>   relative ("in 6 days"); updates every 30 seconds
 // Flags: d D t T f F s S R (no flag = f). Times show in each viewer's own timezone.
 // Only the MOTD (#motd) is converted, not chat. Needs jQuery and the page's socket.
 // ============================================================================
@@ -27,23 +27,21 @@
         }
     }
 
-    // Two-unit duration: "1 day 20 hrs", "1 hr 45 min", "25 min"
+    // Single-unit duration, rounded to nearest: "25 min", "2 hrs", "2 days"
     function formatRelativeDuration(absSecs) {
-        var mins = Math.floor(absSecs / 60);
-        var hours = Math.floor(mins / 60);
-        var days = Math.floor(hours / 24);
-
         function unit(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
-        if (days >= 1) {
-            var h = hours % 24;
-            return unit(days, 'day', 'days') + (h ? ' ' + unit(h, 'hr', 'hrs') : '');
+        if (absSecs < 3600) {
+            return Math.floor(absSecs / 60) + ' min';
         }
-        if (hours >= 1) {
-            var m = mins % 60;
-            return unit(hours, 'hr', 'hrs') + (m ? ' ' + m + ' min' : '');
+
+        var hours = Math.round(absSecs / 3600);
+        if (hours < 24) {
+            return unit(hours, 'hr', 'hrs');
         }
-        return mins + ' min';
+
+        var days = Math.max(1, Math.round(absSecs / 86400));
+        return unit(days, 'day', 'days');
     }
 
     function formatDiscordTime(unixStr, flag) {
