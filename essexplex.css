@@ -1,0 +1,217 @@
+@import url(https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap);
+
+/* Font used by the channel name and modal headings.
+   Ideally download this font and host it in your own repo instead of Dropbox. */
+@font-face {
+  font-family: "AzurLane";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local("AzurLane"),
+       url("https://dl.dropbox.com/scl/fi/lp71gnnkh9xz8f8iae4sa/enschede-serial-black.ttf?rlkey=89facbqrb8j9u02q7s6v7orak&st=4gb0i4v7&dl=0") format("truetype");
+}
+
+body {
+  accent-color: #95c2ee;
+  color: #a6a6a6;
+  font-family: Instrument Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+/* Logo left of the channel name */
+.navbar-header::before {
+  background-image: url('https://cdn.imgchest.com/files/46acqaz2mk7.png');
+  float: left;
+  height: 50px;
+  width: 50px;
+  background-size: contain;
+  margin-left: 20px;
+}
+
+.navbar-inverse {
+  background: #000;
+  background-image: radial-gradient(circle, rgb(217, 217, 217) 0%, rgb(35, 42, 174) 60%) !important;
+}
+
+#chatheader {
+  background: #000;
+  background-image: linear-gradient(#000 20%, #0f0f0f) !important;
+  border-bottom: 1px solid #000;
+  color: #95c2ee;
+}
+
+.timestamp { color: #8383ff59; }
+#currenttitle { color: #a6a6a6; font-family: AzurLane; }
+
+#messagebuffer, #userlist { background: #000b1aeb; }
+
+#chat-footer {
+  background: #02316fab;
+  border-top: 1px solid #000;
+  backdrop-filter: saturate(200%) blur(10px);
+}
+
+input.form-control[type='email'],
+input.form-control[type='password'],
+input.form-control[type='text'],
+textarea.form-control {
+  background-color: #02122bb2 !important;
+  border: 0;
+  box-shadow: inset 0 0 3px #000c, 0 0 1px #acb6eca3;
+}
+
+.text-info, .text-info:hover { color: #9fe8ff; }
+
+.btn {
+  background-color: transparent;
+  border: 1px solid #000;
+  border-radius: 4px;
+  color: #b9b9b9;
+}
+.btn-default { background-image: linear-gradient(rgba(74, 144, 226, 1), rgba(4, 49, 104, 1)); }
+.btn-primary { background-image: linear-gradient(#616161, #0f0f0f 15%, #5c6bc0); }
+.btn-primary:hover { background-image: linear-gradient(#3949ab, #4d6194 60%, #3949ab); }
+.btn-info { background-image: linear-gradient(#104384, #020c20 60%, #061653); }
+.btn-danger { background-image: linear-gradient(#991717, #1a0202 60%, #390404); color: #ff8181; }
+.btn-warning { background-image: linear-gradient(#bd781e, #1a1202 60%, #552c09); }
+.btn-success { background-image: linear-gradient(#359910, #061a02 60%, #0f5509); }
+
+.btn-chat:active, .btn-chat:focus, .btn-default:active, .btn-default:focus {
+  border-color: #000;
+  color: #b9b9b9;
+}
+
+/* Video overlay buttons (reload / voteskip / fullscreen) */
+#videoOverlay {
+  width: 100%;
+  position: absolute;
+  z-index: 16;
+  text-align: center;
+  pointer-events: none;
+  background: rgba(84, 84, 227, 0.77);
+  display: none;
+  padding: 5px 0;
+  box-shadow: 0 1px 4px #e9eae2;
+}
+#videoOverlay > button {
+  pointer-events: auto;
+  margin: 2px 4px;
+  background-image: radial-gradient(circle, rgb(114, 75, 222) 0%, rgb(28, 99, 177) 100%);
+  border: 1px solid #95c2ee;
+  font-weight: bold;
+}
+
+.gif-search-alert-warning { display: none; }
+#changelogbtn { display: none; }
+
+.btn-chat, .btn-chat:hover { border-radius: 0; border-right-width: 0; margin: 0; }
+.btn-chat:hover, .btn-default:hover {
+  background-image: linear-gradient(#000, #131313 40%, #3949ab);
+  border-color: #000;
+  color: #95c2ee;
+}
+
+#afktoggle, #afktoggle.active {
+  background: linear-gradient(#000, #5c6bc0) padding-box, linear-gradient(90deg, #000, #3949ab) border-box;
+}
+#afktoggle.active:hover, #afktoggle:hover {
+  background: linear-gradient(#000, #3949ab) padding-box, linear-gradient(90deg, #000, #b0c4de) border-box;
+  color: lightblue;
+}
+#afktoggle.active { border: 1px solid transparent; color: #95c2ee; }
+
+.navbar-inverse .navbar-nav > li > a,
+.navbar-inverse .navbar-text { color: #95c2ee; text-transform: lowercase; }
+
+.btn-chat:first-child, .btn-chat:first-child:hover { border-radius: 4px 0 0 4px !important; }
+.btn-chat:last-child, .btn-chat:last-child:hover {
+  border-radius: 0 4px 4px 0 !important;
+  border-right-width: 1px !important;
+}
+
+#messagebuffer, .modal-content, .well { backdrop-filter: saturate(0) blur(8px); }
+.well { background-color: #0b0b0bbd; border: 1px solid #000; }
+
+.close { color: #9f9f9f; opacity: 1; text-shadow: 0 0 2px #000; }
+.close:focus, .close:hover { color: #95c2ee; }
+
+#chat-buttons-inline { padding: 4px; }
+
+.navbar-inverse .navbar-brand {
+  color: #95c2ee;
+  font-family: AzurLane, serif;
+  font-size: 4rem;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px black;
+}
+.navbar-size-tiny .navbar-inverse .navbar-brand { font-size: 2.2rem; }
+
+.modal-content {
+  background-color: #02316fab;
+  border: 1px solid #142433;
+  backdrop-filter: saturate(200%) blur(10px);
+}
+.modal-content h4 { color: #95c2ee; font-family: AzurLane, serif; }
+.modal-footer { border-top: 1px solid #000; }
+
+.nav-tabs { border-bottom: 1px solid #000; }
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  background-color: transparent;
+  background-image: linear-gradient(transparent, #5c6bc0 90%, #3949ab);
+  background-repeat: no-repeat;
+  border: 1px solid transparent;
+  border-bottom-color: #bbb;
+  color: #eee;
+}
+.nav-tabs > li > a:hover { border-color: #000; background-color: #6F6E8D; }
+
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:focus,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > li > a:focus,
+.navbar-inverse .navbar-nav > li > a:hover {
+  background-color: transparent;
+  background-image: radial-gradient(circle, rgb(114, 75, 222) 0%, rgb(28, 99, 177) 100%);
+  border-radius: 10px;
+  box-shadow: 0 -2px 5px #e1dde4;
+}
+
+.nick-hover { background-color: #2f2f2f70; }
+
+.form-control {
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #4d4d4d;
+  color: #272b30;
+}
+
+.emotelist-table { background-color: #030e1a4f; border-radius: 4px; }
+.emotelist-table td, .user-dropdown { background-color: #ffffff08; border-radius: 4px; }
+
+.pagination > li > a, .pagination > li > span,
+.pagination > li.disabled > a, .pagination > li.disabled > a:hover,
+.pagination > li.disabled > span, .pagination > li.disabled > span:hover {
+  background-color: transparent;
+  background: linear-gradient(#98bcff, #0277bd) padding-box, linear-gradient(90deg, #000, #3949ab) border-box;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 3px 2px #ffffff3d, inset 0 0 1px #b0c4de;
+  color: #eee;
+}
+.pagination > li.disabled > a, .pagination > li.disabled > a:hover,
+.pagination > li.disabled > span, .pagination > li.disabled > span:hover {
+  background-image: none;
+  background: #002147;
+  box-shadow: none;
+  color: #484848;
+}
+.pagination > li > a:hover, .pagination > li > span:hover,
+.pagination > li.active > a, .pagination > li.active > span {
+  background-image: linear-gradient(#616161, #3949ab 30%, #c8c8c859 80%);
+  box-shadow: inset 0 0 2px #ffffff5e;
+  color: #fff;
+  text-shadow: none;
+}
+
+.userlist_item:hover { background: #280000; }
+.profile-box { background: #131313e5; border-color: #95c2ee; }
