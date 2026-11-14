@@ -59,6 +59,8 @@ window.ExternalThemes = {
     "custtheme_shadowplex": {display_name: "The Green's Shadowplex", author: "Greenshadow", cssLink: "https://batgreenshadow67.github.io/shadowplex-cytube-css/shadowplexstyle.css"},
     "custtheme_jesus": {display_name: "Jesus", author: "God", cssLink: "https://cdn.jsdelivr.net/gh/jesus028-hash/cytube-themes@main/custtheme_jesus_v1.css?"},
     "custtheme_nonamed": {display_name: "The Theme With No Name", author: "BigBadBox", cssLink: "https://batgreenshadow67.github.io/shadowplex-cytube-css/thethemewithnoname.css"},
+"custtheme_essex": {display_name: "Essex", author: "Zero", cssLink: "https://batgreenshadow67.github.io/shadowplex-cytube-css/essexplex.css"},
+
 };
 
 if (!window.RUNONCE) {
@@ -76,3 +78,4 @@ $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/cytubemini
 $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/additionaltexteffects.js");
 $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/chatplusnndtogglebuttons.js");
 $.getScript("https://batgreenshadow67.github.io/shadowplex-cytube-css/motdtabs.js");
+$.getScript("https://jesus028-hash.github.io/cytube-themes/EasyImport.js");
