@@ -27,12 +27,12 @@
         }
     }
 
-    // Single-unit duration, rounded to nearest: "25 min", "2 hrs", "2 days"
+    // Single-unit duration, rounded to nearest: "25 minutes", "2 hours", "2 days"
     function formatRelativeDuration(absSecs) {
         function unit(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
         if (absSecs < 3600) {
-            return Math.floor(absSecs / 60) + ' minute','minutes';
+            return unit(Math.floor(absSecs / 60), 'minute', 'minutes');
         }
 
         var hours = Math.round(absSecs / 3600);
