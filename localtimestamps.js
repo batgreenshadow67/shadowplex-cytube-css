@@ -32,12 +32,12 @@
         function unit(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
         if (absSecs < 3600) {
-            return Math.floor(absSecs / 60) + ' min';
+            return Math.floor(absSecs / 60) + ' minute','minutes';
         }
 
         var hours = Math.round(absSecs / 3600);
         if (hours < 24) {
-            return unit(hours, 'hr', 'hrs');
+            return unit(hours, 'hour', 'hours');
         }
 
         var days = Math.max(1, Math.round(absSecs / 86400));
